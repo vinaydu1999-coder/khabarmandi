@@ -11,8 +11,6 @@
   import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
            query, orderBy, onSnapshot, serverTimestamp, getDocs }
                                    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject }
-                                   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
            signOut, onAuthStateChanged, updateProfile }
                                    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -29,14 +27,12 @@
 
   const app  = initializeApp(firebaseConfig);
   const db   = getFirestore(app);
-  const stor = getStorage(app);
   const auth = getAuth(app);
 
   window._fb = {
-    db, stor, auth,
+    db, auth,
     collection, addDoc, doc, updateDoc, deleteDoc,
     query, orderBy, onSnapshot, serverTimestamp, getDocs,
-    ref, uploadBytesResumable, getDownloadURL, deleteObject,
     createUserWithEmailAndPassword, signInWithEmailAndPassword,
     signOut, onAuthStateChanged, updateProfile
   };
@@ -626,12 +622,12 @@ function buildForm(pf){
     <div class="fr">
       <label class="fl">Cover Image / कवर फोटो</label>
       <div class="upzone" id="upzone">
-        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/tiff"
                onchange="onFilePick(this)"/>
         <div class="up-icon">🖼️</div>
         <div class="up-text">
           <span>Click to upload</span> or drag & drop<br/>
-          <small style="color:var(--ink3)">JPG · PNG · WebP · GIF — max 5 MB</small>
+          <small style="color:var(--ink3)">JPG · PNG · WebP · GIF · BMP — max 32 MB · via ImgBB</small>
         </div>
       </div>
       <div id="prevDiv"></div>
@@ -651,7 +647,9 @@ function buildForm(pf){
   </div>`;
 }
 
-// ── IMAGE UPLOAD ─────────────────────────────────────────
+// ── IMGBB IMAGE UPLOAD ────────────────────────────────────
+const IMGBB_KEY = '66f8f8bd88655f45d992c15f609e73f3';
+
 function initDrop(){
   const z=document.getElementById('upzone'); if(!z) return;
   z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag')});
@@ -664,54 +662,80 @@ function initDrop(){
 
 function onFilePick(inp){ if(inp.files[0]) doUpload(inp.files[0]); }
 
-function doUpload(file){
-  if(!window._fbReady){ Terr('Firebase not ready!'); return; }
-  if(file.size>5*1024*1024){ Terr('Image too large — max 5 MB'); return; }
+async function doUpload(file){
   if(!file.type.startsWith('image/')){ Terr('Please select an image file'); return; }
+  if(file.size > 32*1024*1024){ Terr('Image too large — max 32 MB'); return; }
 
-  const {stor,ref,uploadBytesResumable,getDownloadURL}=window._fb;
-  const ext=file.name.split('.').pop().toLowerCase();
-  const path=`articles/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-  const task=uploadBytesResumable(ref(stor,path),file);
+  const bar    = document.getElementById('upbar');
+  const fill   = document.getElementById('upfill');
+  const status = document.getElementById('upStatus');
+  const zone   = document.getElementById('upzone');
 
-  const bar=document.getElementById('upbar');
-  const fill=document.getElementById('upfill');
-  const status=document.getElementById('upStatus');
-  if(bar) bar.style.display='block';
-  if(status) status.textContent='Uploading…';
+  if(bar)    bar.style.display = 'block';
+  if(fill)   fill.style.width  = '0%';
+  if(status) status.textContent = 'Uploading to ImgBB…';
+  if(zone)   zone.style.pointerEvents = 'none';
 
-  task.on('state_changed',
-    snap=>{
-      const pct=Math.round(snap.bytesTransferred/snap.totalBytes*100);
-      if(fill) fill.style.width=pct+'%';
-      if(status) status.textContent=`Uploading… ${pct}%`;
-    },
-    err=>{
-      Terr('Upload failed: '+err.message);
-      if(bar) bar.style.display='none';
-      if(status) status.textContent='Upload failed.';
-    },
-    ()=>{
-      getDownloadURL(task.snapshot.ref).then(url=>{
-        imgUrl=url;
-        if(bar) bar.style.display='none';
-        if(status) status.textContent='';
-        const pd=document.getElementById('prevDiv');
-        if(pd) pd.innerHTML=`
-          <div class="img-prev">
-            <img src="${url}" alt="preview"/>
-            <button class="img-rm" title="Remove image" onclick="clearImg()">×</button>
-          </div>`;
-        Tok('✓ Image uploaded successfully!');
-      });
-    }
-  );
+  // Animate progress bar (ImgBB doesn't give progress events, so fake it smoothly)
+  let fakeP = 0;
+  const ticker = setInterval(()=>{
+    fakeP = Math.min(fakeP + Math.random()*12, 85);
+    if(fill) fill.style.width = fakeP + '%';
+  }, 200);
+
+  try{
+    // Convert file to base64
+    const b64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload  = () => res(reader.result.split(',')[1]);
+      reader.onerror = () => rej(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
+    });
+
+    const form = new FormData();
+    form.append('image', b64);
+    form.append('key',   IMGBB_KEY);
+
+    const resp = await fetch('https://api.imgbb.com/1/upload', {
+      method: 'POST',
+      body:   form
+    });
+    const data = await resp.json();
+
+    clearInterval(ticker);
+
+    if(!data.success) throw new Error(data.error?.message || 'ImgBB upload failed');
+
+    const url = data.data.display_url;
+    imgUrl = url;
+
+    if(fill)   fill.style.width = '100%';
+    if(status) status.textContent = '';
+    setTimeout(()=>{ if(bar) bar.style.display='none'; if(fill) fill.style.width='0%'; }, 400);
+    if(zone) zone.style.pointerEvents = 'auto';
+
+    const pd = document.getElementById('prevDiv');
+    if(pd) pd.innerHTML = `
+      <div class="img-prev">
+        <img src="${url}" alt="preview"/>
+        <button class="img-rm" title="Remove image" onclick="clearImg()">×</button>
+      </div>`;
+
+    Tok('✓ Image uploaded successfully!');
+
+  } catch(e){
+    clearInterval(ticker);
+    if(bar)    bar.style.display  = 'none';
+    if(status) status.textContent = '';
+    if(zone)   zone.style.pointerEvents = 'auto';
+    Terr('Upload failed: ' + e.message);
+  }
 }
 
 function clearImg(){
-  imgUrl=null;
-  const pd=document.getElementById('prevDiv');
-  if(pd) pd.innerHTML='';
+  imgUrl = null;
+  const pd = document.getElementById('prevDiv');
+  if(pd) pd.innerHTML = '';
 }
 
 // ── SUBMIT ARTICLE ────────────────────────────────────────
@@ -958,7 +982,7 @@ function renderATbl(f){
               ${a.status==='published'?`
                 <button class="btn bsm bgr" onclick="chStat('${a.id}','pending')">Unpublish</button>`:''}
               <button class="btn bsm bo" onclick="openArt('${a.id}')">View</button>
-              <button class="btn bsm bd" onclick="delArt('${a.id}','${a.imageUrl||''}')">🗑</button>
+              <button class="btn bsm bd" onclick="delArt('${a.id}')">🗑</button>
             </div>
           </td>
         </tr>`).join('')
@@ -974,14 +998,11 @@ async function chStat(id,status){
   }catch(e){ Terr('Error: '+e.message); }
 }
 
-async function delArt(id,iurl){
+async function delArt(id){
   if(!confirm('Delete this article permanently? / क्या आप इस लेख को हमेशा के लिए हटाना चाहते हैं?')) return;
   try{
-    const {db,doc,deleteDoc,stor,ref,deleteObject}=window._fb;
+    const {db,doc,deleteDoc}=window._fb;
     await deleteDoc(doc(db,'articles',id));
-    if(iurl&&iurl!=='null'&&iurl!==''){
-      try{ await deleteObject(ref(stor,iurl)); }catch(e){}
-    }
     Tok('Article deleted.');
   }catch(e){ Terr('Error: '+e.message); }
 }
