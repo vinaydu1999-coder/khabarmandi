@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Khabarmandi | खबरमंडी</title>
+<title>SatashiRaj Khabar Mandi | सतासीराज ख़बर मंडी</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
 
 <script type="module">
@@ -259,13 +259,13 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 
 <div class="lov" id="lov">
   <div class="spin"></div>
-  <div style="font-size:14px;color:var(--ink2);font-weight:600">खबरमंडी लोड हो रहा है…</div>
+  <div style="font-size:14px;color:var(--ink2);font-weight:600">सतासीराज ख़बर मंडी लोड हो रहा है…</div>
 </div>
 <div class="toast" id="toast"></div>
 
 <!-- TICKER -->
 <div class="ticker">
-  <span>ब्रेकिंग: खबरमंडी में आपका स्वागत है &nbsp;●&nbsp; BREAKING: Welcome to Khabarmandi &nbsp;●&nbsp; ताज़ा खबरों के लिए जुड़े रहें &nbsp;●&nbsp; Submit articles and reach millions of readers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+  <span>ब्रेकिंग: सतासीराज ख़बर मंडी में आपका स्वागत है &nbsp;●&nbsp; BREAKING: Welcome to SatashiRaj Khabar Mandi &nbsp;●&nbsp; ताज़ा खबरों के लिए जुड़े रहें &nbsp;●&nbsp; Submit articles and reach millions of readers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
 </div>
 
 <!-- MASTHEAD -->
@@ -273,8 +273,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
   <div class="mast-in">
     <div class="mast-date" id="mastDate"></div>
     <div style="text-align:center">
-      <div class="logo-hi">खबरमंडी</div>
-      <div class="logo-en">KHABARMANDI</div>
+      <div class="logo-hi">सतासीराज ख़बर मंडी</div>
+      <div class="logo-en">SATASHIRAJ KHABAR MANDI</div>
       <div style="font-size:11px;color:var(--ink3);margin-top:5px;letter-spacing:.3px;font-family:var(--bf)">
         Founded by <strong style="color:var(--ink2)">Kunwar Sheel Vardhan Pratap Singh</strong>
         &nbsp;·&nbsp; in association with <strong style="color:var(--ink2)">Vinay Chaurasiya</strong>
@@ -345,7 +345,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 <div class="screen" id="adminScreen">
   <div class="aw2">
     <div class="ah">
-      <h1>Editor Dashboard — खबरमंडी</h1>
+      <h1>Editor Dashboard — सतासीराज ख़बर मंडी</h1>
       <div style="display:flex;gap:8px">
         <button class="btn bo bsm" onclick="showS('homeScreen')">← Home</button>
         <button class="btn bgr bsm" onclick="doLogout()">Logout</button>
@@ -385,8 +385,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 <div class="screen" id="loginScreen">
   <div class="loginw"><div class="loginb">
     <div class="loginlogo">
-      <div class="logo-hi" style="font-size:34px">खबरमंडी</div>
-      <div class="logo-en" style="font-size:10px;letter-spacing:4px;margin-top:2px">KHABARMANDI</div>
+      <div class="logo-hi" style="font-size:34px">सतासीराज ख़बर मंडी</div>
+      <div class="logo-en" style="font-size:10px;letter-spacing:4px;margin-top:2px">SATASHIRAJ KHABAR MANDI</div>
     </div>
     <div id="loginContent"></div>
   </div></div>
@@ -398,7 +398,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
     <div class="loginlogo">
       <div style="font-size:36px;margin-bottom:8px">🔐</div>
       <div class="logo-hi" style="font-size:28px">Admin Setup</div>
-      <div style="font-size:13px;color:var(--ink2);margin-top:6px">Create your admin account for Khabarmandi</div>
+      <div style="font-size:13px;color:var(--ink2);margin-top:6px">Create your admin account for SatashiRaj Khabar Mandi</div>
     </div>
     <div id="setupContent"></div>
   </div></div>
@@ -848,10 +848,10 @@ function showAdminSetup(){
   document.getElementById('setupContent').innerHTML=`
     <div class="infobox note" style="margin-bottom:18px">
       <strong>First time setup!</strong> No admin account exists yet.<br/>
-      Create your admin account to manage Khabarmandi.
+      Create your admin account to manage SatashiRaj Khabar Mandi.
     </div>
     <div class="fr"><label class="fl">Admin Name</label><input class="fi" id="sn" placeholder="Your name"/></div>
-    <div class="fr"><label class="fl">Admin Email</label><input class="fi" id="se" type="email" placeholder="admin@khabarmandi.in"/></div>
+    <div class="fr"><label class="fl">Admin Email</label><input class="fi" id="se" type="email" placeholder="admin@satashiraj.in"/></div>
     <div class="fr"><label class="fl">Password (min 6 chars)</label><input class="fi" id="sp" type="password" placeholder="Strong password"/></div>
     <div class="fr"><label class="fl">Confirm Password</label><input class="fi" id="sp2" type="password" placeholder="Repeat password"/></div>
     <button class="btn bp" style="width:100%;margin-top:8px" onclick="createAdmin()">Create Admin Account →</button>`;
@@ -1131,7 +1131,7 @@ async function init(){
     now.toLocaleDateString('hi-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+
     '<br/>'+now.toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   const fy=document.getElementById('footerYear');
-  if(fy) fy.textContent='© '+now.getFullYear()+' खबरमंडी · Khabarmandi. All rights reserved.';
+  if(fy) fy.textContent='© '+now.getFullYear()+' सतासीराज ख़बर मंडी · SatashiRaj Khabar Mandi. All rights reserved.';
 }
 
 document.addEventListener('fbReady',async()=>{
@@ -1156,10 +1156,10 @@ init();
 
       <!-- Brand -->
       <div>
-        <div style="font-family:var(--hf);font-size:30px;font-weight:700;color:var(--red);line-height:1;margin-bottom:6px">खबरमंडी</div>
-        <div style="font-family:var(--ef);font-size:10px;letter-spacing:4px;color:#888;margin-bottom:14px">KHABARMANDI</div>
+        <div style="font-family:var(--hf);font-size:30px;font-weight:700;color:var(--red);line-height:1;margin-bottom:6px">सतासीराज ख़बर मंडी</div>
+        <div style="font-family:var(--ef);font-size:10px;letter-spacing:4px;color:#888;margin-bottom:14px">SATASHIRAJ KHABAR MANDI</div>
         <p style="font-size:13px;color:#aaa;line-height:1.7;max-width:300px">
-          A bilingual Hindi-English news portal bringing you accurate, timely reporting from across India and the world.
+          SatashiRaj Khabar Mandi — A bilingual Hindi-English news portal bringing you accurate, timely reporting from across India and the world.
         </p>
         <p style="font-size:13px;color:#aaa;line-height:1.7;margin-top:8px;font-family:var(--hf)">
           हिंदी और अंग्रेज़ी में ताज़ा, सटीक और विश्वसनीय खबरें।
@@ -1201,7 +1201,7 @@ init();
     <!-- Bottom bar -->
     <div style="border-top:1px solid #333;padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
       <div style="font-size:12px;color:#666" id="footerYear">
-        © 2026 खबरमंडी · Khabarmandi. All rights reserved.
+        © 2026 सतासीराज ख़बर मंडी · SatashiRaj Khabar Mandi. All rights reserved.
       </div>
       <div style="font-size:12px;color:#666;text-align:right">
         Founded by <span style="color:#aaa;font-weight:600">Kunwar Sheel Vardhan Pratap Singh</span>
