@@ -1130,6 +1130,8 @@ async function init(){
   document.getElementById('mastDate').innerHTML=
     now.toLocaleDateString('hi-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+
     '<br/>'+now.toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+  const fy=document.getElementById('footerYear');
+  if(fy) fy.textContent='© '+now.getFullYear()+' खबरमंडी · Khabarmandi. All rights reserved.';
 }
 
 document.addEventListener('fbReady',async()=>{
@@ -1150,7 +1152,7 @@ init();
 <!-- FOOTER -->
 <footer style="background:var(--ink);color:#ccc;padding:40px 0 24px;margin-top:60px">
   <div style="max-width:1120px;margin:0 auto;padding:0 20px">
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:32px;flex-wrap:wrap">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:32px">
 
       <!-- Brand -->
       <div>
@@ -1168,9 +1170,13 @@ init();
       <div>
         <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:14px">Categories</div>
         <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
-          ${['राजनीति','व्यापार','खेल','मनोरंजन','Technology','Health','Education'].map(c=>
-            `<li><button onclick="fcat('${c}',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0;text-align:left;transition:color .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">${c}</button></li>`
-          ).join('')}
+          <li><button onclick="fcat('राजनीति',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">राजनीति</button></li>
+          <li><button onclick="fcat('व्यापार',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">व्यापार</button></li>
+          <li><button onclick="fcat('खेल',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">खेल</button></li>
+          <li><button onclick="fcat('मनोरंजन',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">मनोरंजन</button></li>
+          <li><button onclick="fcat('Technology',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">Technology</button></li>
+          <li><button onclick="fcat('Health',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">Health</button></li>
+          <li><button onclick="fcat('Education',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">Education</button></li>
         </ul>
       </div>
 
@@ -1186,7 +1192,7 @@ init();
           <div style="font-size:12px;color:#888;font-weight:600;margin-top:2px">Co-Founder &amp; Associate Editor</div>
         </div>
         <div style="border-top:1px solid #333;padding-top:14px;margin-top:14px">
-          <button class="btn bp bsm" onclick="goWrite()" style="font-size:12px">✍ Write for Us</button>
+          <button class="btn bp bsm" onclick="goWrite()">✍ Write for Us</button>
         </div>
       </div>
 
@@ -1194,8 +1200,8 @@ init();
 
     <!-- Bottom bar -->
     <div style="border-top:1px solid #333;padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-      <div style="font-size:12px;color:#666">
-        © ${new Date().getFullYear()} खबरमंडी · Khabarmandi. All rights reserved.
+      <div style="font-size:12px;color:#666" id="footerYear">
+        © 2026 खबरमंडी · Khabarmandi. All rights reserved.
       </div>
       <div style="font-size:12px;color:#666;text-align:right">
         Founded by <span style="color:#aaa;font-weight:600">Kunwar Sheel Vardhan Pratap Singh</span>
