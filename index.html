@@ -7,13 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
 
 <script type="module">
-  import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
-           query, orderBy, onSnapshot, serverTimestamp, getDocs }
-                                   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+           query, orderBy, onSnapshot, serverTimestamp, getDocs, where, getDoc }
+                              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
            signOut, onAuthStateChanged, updateProfile }
-                                   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+                              from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey:            "AIzaSyALM4b4H1D5LPTLmp3kCzgs8iYp1unMQik",
@@ -32,7 +32,7 @@
   window._fb = {
     db, auth,
     collection, addDoc, doc, updateDoc, deleteDoc,
-    query, orderBy, onSnapshot, serverTimestamp, getDocs,
+    query, orderBy, onSnapshot, serverTimestamp, getDocs, where, getDoc,
     createUserWithEmailAndPassword, signInWithEmailAndPassword,
     signOut, onAuthStateChanged, updateProfile
   };
@@ -45,7 +45,8 @@
   --red:#C0392B;--red2:#96281B;--red-bg:#FDECEA;
   --ink:#1A1A1A;--ink2:#555;--ink3:#999;
   --paper:#F8F5EE;--white:#FFFFFF;--border:#DDD5C4;
-  --gold:#B8972E;--gold-bg:#F1EBD6;--gold-tx:#7A5C10;
+  --gold:#B8972E;--gold-bg:#F1EBD6;
+  --green:#155724;--green-bg:#D4EDDA;
   --hf:'Noto Serif Devanagari',serif;
   --ef:'Playfair Display',serif;
   --bf:'Source Sans 3',sans-serif;
@@ -54,12 +55,10 @@
 body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16px;line-height:1.7}
 .screen{display:none}.screen.active{display:block}
 
-/* ── TICKER ── */
 .ticker{background:var(--red);color:#fff;font-size:13px;overflow:hidden;white-space:nowrap;padding:5px 0}
 .ticker span{display:inline-block;animation:tick 40s linear infinite}
 @keyframes tick{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
-/* ── MASTHEAD ── */
 .mast{background:var(--white);border-bottom:3px solid var(--red);padding:14px 0 10px}
 .mast-in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .logo-hi{font-family:var(--hf);font-size:40px;font-weight:700;color:var(--red);line-height:1}
@@ -67,17 +66,16 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .mast-date{font-size:12px;color:var(--ink2);line-height:1.5}
 .mast-act{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-/* ── BUTTONS ── */
 .btn{padding:8px 18px;border-radius:3px;font-size:13px;font-family:var(--bf);cursor:pointer;border:none;font-weight:600;transition:all .15s;white-space:nowrap}
 .bp{background:var(--red);color:#fff}.bp:hover{background:var(--red2)}
 .bo{background:transparent;border:1.5px solid var(--red);color:var(--red)}.bo:hover{background:var(--red-bg)}
 .bg{background:var(--gold);color:#fff}.bg:hover{background:#9a7b22}
 .bgr{background:#777;color:#fff}.bgr:hover{background:#555}
+.bgrn{background:#1a7a3a;color:#fff}.bgrn:hover{background:#145f2c}
 .bd{background:var(--red);color:#fff}
 .bsm{padding:5px 12px;font-size:12px}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
-/* ── NAV ── */
 .nav{background:var(--ink);position:sticky;top:0;z-index:100}
 .nav-in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
 .nav ul{display:flex;list-style:none;flex-wrap:wrap}
@@ -87,10 +85,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .lbtn{padding:5px 12px;font-size:12px;border-radius:2px;border:1px solid #555;background:none;color:#aaa;cursor:pointer;font-family:var(--bf);font-weight:600;transition:all .15s}
 .lbtn.act{background:var(--gold);color:#fff;border-color:var(--gold)}
 
-/* ── LAYOUT ── */
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 
-/* ── HERO ── */
+/* HERO */
 .hero-sec{padding:22px 0 0}
 .hero-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
 .hero-main{background:var(--white);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:box-shadow .2s}
@@ -105,7 +102,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .ameta{font-size:12px;color:var(--ink3);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .ameta .by{font-weight:700;color:var(--ink2)}
 
-/* ── SIDEBAR ── */
+/* SIDEBAR */
 .ss{display:flex;flex-direction:column;gap:12px}
 .sc{background:var(--white);border:1px solid var(--border);display:flex;gap:10px;padding:10px;cursor:pointer;transition:box-shadow .2s}
 .sc:hover{box-shadow:0 2px 12px rgba(0,0,0,.1)}
@@ -116,13 +113,11 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .sc-title.hi{font-family:var(--hf);font-size:13px}
 .sc-time{font-size:11px;color:var(--ink3)}
 
-/* ── SECTION HEAD ── */
 .sh{display:flex;align-items:center;gap:12px;margin:28px 0 16px;border-bottom:2px solid var(--ink);padding-bottom:8px}
 .sh h2{font-family:var(--ef);font-size:18px;font-weight:700}
-.sh h2.hi{font-family:var(--hf);font-size:17px}
 .sl{flex:1;height:1px;background:var(--border)}
 
-/* ── CARD GRID ── */
+/* CARDS */
 .cg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:36px}
 .nc{background:var(--white);border:1px solid var(--border);cursor:pointer;overflow:hidden;transition:box-shadow .2s,transform .15s}
 .nc:hover{box-shadow:0 4px 18px rgba(0,0,0,.12);transform:translateY(-2px)}
@@ -136,7 +131,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .cm{font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
 .cm .by{font-weight:700;color:var(--ink2)}
 
-/* ── ARTICLE ── */
+/* ARTICLE */
 .aw{max-width:760px;margin:28px auto;padding:0 20px 60px}
 .back{display:inline-flex;align-items:center;gap:5px;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;background:none;border:none;font-family:var(--bf);margin-bottom:18px}
 .back:hover{text-decoration:underline}
@@ -151,7 +146,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .abody p{margin-bottom:1.4em}
 .abody.hi{font-family:var(--hf);font-size:16px;line-height:2.1}
 
-/* ── WRITE / FORM ── */
+/* FORMS */
 .pw{max-width:840px;margin:0 auto;padding:26px 20px 60px}
 .ptitle{text-align:center;margin-bottom:26px}
 .ptitle h1{font-family:var(--ef);font-size:25px;font-weight:900}
@@ -170,7 +165,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .lopt input{accent-color:var(--red)}
 .subrow{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
 
-/* ── IMAGE UPLOAD ── */
+/* IMAGE UPLOAD */
 .upzone{border:2px dashed var(--border);background:var(--paper);border-radius:3px;padding:26px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;min-height:110px}
 .upzone:hover,.upzone.drag{border-color:var(--red);background:var(--red-bg)}
 .upzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -184,16 +179,16 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .upbar-fill{height:100%;background:var(--red);width:0%;transition:width .15s}
 .up-status{font-size:12px;color:var(--ink2);margin-top:6px;font-weight:600}
 
-/* ── ADMIN ── */
+/* ADMIN */
 .aw2{max-width:1040px;margin:0 auto;padding:26px 20px 60px}
 .ah{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:10px}
 .ah h1{font-family:var(--ef);font-size:22px;font-weight:900}
-.sr{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:26px}
+.sr{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:26px}
 .stc{background:var(--white);border:1px solid var(--border);padding:16px;text-align:center}
-.stn{font-family:var(--ef);font-size:30px;font-weight:900;color:var(--red)}
-.stl{font-size:12px;color:var(--ink2);margin-top:4px;font-weight:600}
+.stn{font-family:var(--ef);font-size:28px;font-weight:900;color:var(--red)}
+.stl{font-size:11px;color:var(--ink2);margin-top:4px;font-weight:600}
 .tbl{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--border);font-size:13px}
-.tbl th{background:var(--ink);color:#fff;padding:10px 12px;text-align:left;font-weight:600;letter-spacing:.3px}
+.tbl th{background:var(--ink);color:#fff;padding:10px 12px;text-align:left;font-weight:600}
 .tbl td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
 .tbl tr:hover td{background:var(--paper)}
 .tbl .tc img{width:52px;height:38px;object-fit:cover;border-radius:2px;border:1px solid var(--border);display:block}
@@ -204,32 +199,47 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .srej{background:#F8D7DA;color:#721C24}
 .ab{display:flex;gap:4px;flex-wrap:wrap}
 
-/* ── TABS ── */
+/* PENDING BADGE on nav tab */
+.badge{display:inline-flex;align-items:center;justify-content:center;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;min-width:18px;height:18px;padding:0 5px;margin-left:5px;line-height:1}
+
 .tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:22px;flex-wrap:wrap}
-.tab{padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:none;font-family:var(--bf);color:var(--ink2);border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s}
+.tab{padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:none;font-family:var(--bf);color:var(--ink2);border-bottom:3px solid transparent;margin-bottom:-2px;transition:color .15s;display:flex;align-items:center;gap:4px}
 .tab.act{color:var(--red);border-bottom-color:var(--red)}
 
-/* ── LOGIN ── */
-.loginw{max-width:400px;margin:50px auto;padding:0 20px}
+/* LOGIN */
+.loginw{max-width:420px;margin:50px auto;padding:0 20px}
 .loginb{background:var(--white);border:1px solid var(--border);padding:34px}
 .loginlogo{text-align:center;margin-bottom:20px}
 
-/* ── TOAST ── */
+/* INFO BOX */
+.infobox{padding:14px 16px;border-radius:3px;font-size:13px;line-height:1.6;margin-top:14px}
+.infobox.warn{background:#FFF3CD;border:1px solid #ffc107;color:#856404}
+.infobox.info{background:#D4EDDA;border:1px solid #28a745;color:#155724}
+.infobox.note{background:#e8f0fe;border:1px solid #4285f4;color:#1a56db}
+
+/* TOAST */
 .toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:#fff;padding:12px 20px;border-radius:3px;font-size:14px;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;max-width:340px;line-height:1.5}
 .toast.show{opacity:1;transform:translateY(0)}
 .tok{background:#155724}.terr{background:var(--red2)}
 
-/* ── LOADING ── */
+/* LOADING */
 .lov{position:fixed;inset:0;background:rgba(248,245,238,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;gap:14px}
 .spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .lov.off{display:none}
 
-/* ── EMPTY STATE ── */
 .empty{text-align:center;padding:50px 20px;color:var(--ink2)}
 .empty .ic{font-size:44px;margin-bottom:12px}
 
-/* ── RESPONSIVE ── */
+/* WRITER CARD in pending list */
+.wcard{background:var(--white);border:1px solid var(--border);padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.wcard-info{}
+.wcard-name{font-weight:700;font-size:15px;color:var(--ink)}
+.wcard-email{font-size:13px;color:var(--ink2)}
+.wcard-bio{font-size:13px;color:var(--ink2);margin-top:4px;font-style:italic}
+.wcard-date{font-size:11px;color:var(--ink3);margin-top:3px}
+.wcard-acts{display:flex;gap:8px;flex-shrink:0}
+
 @media(max-width:768px){
   .hero-grid{grid-template-columns:1fr}
   .cg{grid-template-columns:1fr 1fr}
@@ -241,28 +251,21 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 @media(max-width:500px){
   .cg{grid-template-columns:1fr}
   .mast-date{display:none}
+  .sr{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="lov" id="lov">
   <div class="spin"></div>
   <div style="font-size:14px;color:var(--ink2);font-weight:600">खबरमंडी लोड हो रहा है…</div>
 </div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <!-- TICKER -->
 <div class="ticker">
-  <span id="tickSpan">
-    ब्रेकिंग: खबरमंडी में आपका स्वागत है &nbsp;●&nbsp;
-    BREAKING: Welcome to Khabarmandi — Your trusted bilingual news portal &nbsp;●&nbsp;
-    ताज़ा खबरों के लिए जुड़े रहें &nbsp;●&nbsp;
-    Submit your articles and reach millions of readers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  </span>
+  <span>ब्रेकिंग: खबरमंडी में आपका स्वागत है &nbsp;●&nbsp; BREAKING: Welcome to Khabarmandi &nbsp;●&nbsp; ताज़ा खबरों के लिए जुड़े रहें &nbsp;●&nbsp; Submit articles and reach millions of readers &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
 </div>
 
 <!-- MASTHEAD -->
@@ -272,6 +275,10 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
     <div style="text-align:center">
       <div class="logo-hi">खबरमंडी</div>
       <div class="logo-en">KHABARMANDI</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:5px;letter-spacing:.3px;font-family:var(--bf)">
+        Founded by <strong style="color:var(--ink2)">Kunwar Sheel Vardhan Pratap Singh</strong>
+        &nbsp;·&nbsp; in association with <strong style="color:var(--ink2)">Vinay Chaurasiya</strong>
+      </div>
     </div>
     <div class="mast-act">
       <button class="btn bo bsm" onclick="goWrite()">✍ लिखें / Write</button>
@@ -317,12 +324,10 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 
 <!-- ═══ ARTICLE ═══ -->
 <div class="screen" id="articleScreen">
-  <div class="wrap">
-    <div class="aw">
-      <button class="back" onclick="showS('homeScreen')">← वापस / Back</button>
-      <div id="artContent"></div>
-    </div>
-  </div>
+  <div class="wrap"><div class="aw">
+    <button class="back" onclick="showS('homeScreen')">← वापस / Back</button>
+    <div id="artContent"></div>
+  </div></div>
 </div>
 
 <!-- ═══ WRITE ═══ -->
@@ -347,13 +352,14 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
       </div>
     </div>
     <div class="sr" id="srow"></div>
-    <div class="tabs">
-      <button class="tab act" onclick="atab('pending',this)">⏳ Pending</button>
+    <div class="tabs" id="adminTabs">
+      <button class="tab act" onclick="atab('pending',this)">⏳ Pending Articles</button>
       <button class="tab" onclick="atab('published',this)">✅ Published</button>
       <button class="tab" onclick="atab('rejected',this)">❌ Rejected</button>
-      <button class="tab" onclick="atab('all',this)">📋 All</button>
+      <button class="tab" onclick="atab('all',this)">📋 All Articles</button>
+      <button class="tab" id="writerReqTab" onclick="atab('writers',this)">👤 Writer Requests <span class="badge" id="writerBadge" style="display:none">0</span></button>
     </div>
-    <div style="overflow-x:auto"><table class="tbl" id="atbl"></table></div>
+    <div id="adminContent"></div>
   </div>
 </div>
 
@@ -377,62 +383,82 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 
 <!-- ═══ LOGIN ═══ -->
 <div class="screen" id="loginScreen">
-  <div class="loginw">
-    <div class="loginb">
-      <div class="loginlogo">
-        <div class="logo-hi" style="font-size:34px">खबरमंडी</div>
-        <div class="logo-en" style="font-size:10px;letter-spacing:4px;margin-top:2px">KHABARMANDI</div>
-      </div>
-      <div id="loginContent"></div>
+  <div class="loginw"><div class="loginb">
+    <div class="loginlogo">
+      <div class="logo-hi" style="font-size:34px">खबरमंडी</div>
+      <div class="logo-en" style="font-size:10px;letter-spacing:4px;margin-top:2px">KHABARMANDI</div>
     </div>
-  </div>
+    <div id="loginContent"></div>
+  </div></div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════
-     MAIN SCRIPT
-══════════════════════════════════════════════════════════ -->
+<!-- ═══ ADMIN SETUP (first time) ═══ -->
+<div class="screen" id="setupScreen">
+  <div class="loginw" style="max-width:480px"><div class="loginb">
+    <div class="loginlogo">
+      <div style="font-size:36px;margin-bottom:8px">🔐</div>
+      <div class="logo-hi" style="font-size:28px">Admin Setup</div>
+      <div style="font-size:13px;color:var(--ink2);margin-top:6px">Create your admin account for Khabarmandi</div>
+    </div>
+    <div id="setupContent"></div>
+  </div></div>
+</div>
+
+<!-- ═══ PENDING APPROVAL ═══ -->
+<div class="screen" id="pendingScreen">
+  <div class="loginw" style="max-width:480px"><div class="loginb" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:16px">⏳</div>
+    <h2 style="font-family:var(--ef);font-size:22px;margin-bottom:12px">Approval Pending</h2>
+    <p style="color:var(--ink2);font-size:14px;line-height:1.7;margin-bottom:20px">
+      Your registration request has been sent to the editor.<br/>
+      You will be able to login once the admin approves your account.<br/><br/>
+      <strong>कृपया प्रतीक्षा करें — एडमिन आपकी रिक्वेस्ट को देखेंगे।</strong>
+    </p>
+    <div class="infobox info" style="text-align:left;margin-bottom:20px">
+      ✅ Your registration has been saved.<br/>
+      📧 Contact the editor if you need faster approval.
+    </div>
+    <button class="btn bp" onclick="showS('homeScreen')">← Back to Home</button>
+  </div></div>
+</div>
+
 <script>
-const EM = {
-  'राजनीति':'🏛️','व्यापार':'💼','खेल':'⚽',
-  'मनोरंजन':'🎬','Technology':'💻','Health':'🏥',
-  'Education':'📚','General':'📰'
-};
+// ═══════════════════════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════════════════════
+const EM={'राजनीति':'🏛️','व्यापार':'💼','खेल':'⚽','मनोरंजन':'🎬','Technology':'💻','Health':'🏥','Education':'📚','General':'📰'};
+const IMGBB_KEY='66f8f8bd88655f45d992c15f609e73f3';
 
-let CU = null, CRole = null, arts = [];
-let lang = 'both', cat = 'all', adTab = 'pending';
-let imgUrl = null;
+let CU=null, CRole=null, arts=[], writerReqs=[];
+let lang='both', cat='all', adTab='pending', imgUrl=null;
 
-// ── TOAST ────────────────────────────────────────────────
-function T(msg,type=''){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast show '+type;
-  setTimeout(()=>t.className='toast',3500);
-}
-const Tok  = m => T(m,'tok');
-const Terr = m => T(m,'terr');
+// ═══════════════════════════════════════════════════════
+// UTIL
+// ═══════════════════════════════════════════════════════
+function T(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',3800);}
+const Tok=m=>T(m,'tok');
+const Terr=m=>T(m,'terr');
+const Lov=on=>document.getElementById('lov').className=on?'lov':'lov off';
 
-// ── LOADING ──────────────────────────────────────────────
-const Lov = on => document.getElementById('lov').className=on?'lov':'lov off';
-
-// ── SCREEN SWITCH ────────────────────────────────────────
 function showS(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
 }
 
-// ── DATE FORMAT ──────────────────────────────────────────
 function fdate(d){
-  if(!d) return '';
+  if(!d)return '';
   const dt=d.toDate?d.toDate():new Date(d);
   return dt.toLocaleDateString('hi-IN',{day:'numeric',month:'long',year:'numeric'});
 }
 
-// ── CATEGORY / LANGUAGE FILTERS ─────────────────────────
+// ═══════════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════════
 function fcat(c,el){
   cat=c;
   document.querySelectorAll('#navul button').forEach(b=>b.classList.remove('act'));
-  if(el) el.classList.add('act');
+  if(el)el.classList.add('act');
   renderHome();
 }
 function slang(l){
@@ -443,30 +469,46 @@ function slang(l){
 }
 function getFiltered(){
   return arts.filter(a=>{
-    if(a.status!=='published') return false;
-    if(cat!=='all'&&a.category!==cat) return false;
-    if(lang==='hi'&&a.lang!=='hi') return false;
-    if(lang==='en'&&a.lang!=='en') return false;
+    if(a.status!=='published')return false;
+    if(cat!=='all'&&a.category!==cat)return false;
+    if(lang==='hi'&&a.lang!=='hi')return false;
+    if(lang==='en'&&a.lang!=='en')return false;
     return true;
   });
 }
 
-// ── FIRESTORE REALTIME LISTENER ──────────────────────────
+// ═══════════════════════════════════════════════════════
+// FIRESTORE LISTENERS
+// ═══════════════════════════════════════════════════════
 function subArts(){
   const {db,collection,query,orderBy,onSnapshot}=window._fb;
-  const q=query(collection(db,'articles'),orderBy('createdAt','desc'));
-  onSnapshot(q,snap=>{
+  onSnapshot(query(collection(db,'articles'),orderBy('createdAt','desc')),snap=>{
     arts=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(document.getElementById('homeScreen').classList.contains('active')) renderHome();
-    if(document.getElementById('adminScreen').classList.contains('active')) renderAdmin();
-    if(document.getElementById('writerScreen').classList.contains('active')) renderMineTable();
-  },err=>{
-    Terr('Firebase error — check Firestore rules & config');
-    console.error(err);
+    if(document.getElementById('homeScreen').classList.contains('active'))renderHome();
+    if(document.getElementById('adminScreen').classList.contains('active'))renderAdmin();
+    if(document.getElementById('writerScreen').classList.contains('active'))renderMineTable();
+  },err=>{ Terr('Firebase error — check Firestore rules'); console.error(err); });
+}
+
+function subWriterReqs(){
+  const {db,collection,query,orderBy,onSnapshot}=window._fb;
+  onSnapshot(query(collection(db,'writerRequests'),orderBy('createdAt','desc')),snap=>{
+    writerReqs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    // update badge
+    const pending=writerReqs.filter(r=>r.status==='pending').length;
+    const badge=document.getElementById('writerBadge');
+    if(badge){
+      badge.textContent=pending;
+      badge.style.display=pending>0?'inline-flex':'none';
+    }
+    if(document.getElementById('adminScreen').classList.contains('active')&&adTab==='writers')
+      renderWriterRequests();
   });
 }
 
-// ── HOME ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════════
 function renderHome(){
   const f=getFiltered();
   renderHero(f);
@@ -475,42 +517,23 @@ function renderHome(){
 
 function renderHero(f){
   const hg=document.getElementById('hgrid');
-  if(!f.length){
-    hg.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="ic">📰</div><p>No articles yet — be the first to submit!</p></div>`;
-    return;
-  }
-  const h=f[0], hi=h.lang==='hi';
-  const side=f.slice(1,4);
+  if(!f.length){hg.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="ic">📰</div><p>No articles yet.</p></div>`;return;}
+  const h=f[0],hi=h.lang==='hi';
   hg.innerHTML=`
     <div class="hero-main" onclick="openArt('${h.id}')">
-      <div class="h-img">
-        ${h.imageUrl
-          ?`<img src="${h.imageUrl}" alt="${h.title}" style="width:100%;height:100%;object-fit:cover"/>`
-          :(EM[h.category]||'📰')}
-      </div>
+      <div class="h-img">${h.imageUrl?`<img src="${h.imageUrl}" alt="" style="width:100%;height:100%;object-fit:cover"/>`:(EM[h.category]||'📰')}</div>
       <div class="h-body">
         <span class="ctag">${h.category}</span>
         <div class="h-title ${hi?'hi':''}">${h.title}</div>
         <div class="h-sum">${h.summary}</div>
-        <div class="ameta">
-          <span class="by">✍ ${h.author}</span>
-          <span>${fdate(h.createdAt)}</span>
-          <span>👁 ${(h.views||0).toLocaleString()}</span>
-        </div>
+        <div class="ameta"><span class="by">✍ ${h.author}</span><span>${fdate(h.createdAt)}</span><span>👁 ${(h.views||0).toLocaleString()}</span></div>
       </div>
     </div>
     <div class="ss">
-      ${side.map(a=>`
-        <div class="sc" onclick="openArt('${a.id}')">
-          <div class="st">
-            ${a.imageUrl?`<img src="${a.imageUrl}" alt=""/>`:(EM[a.category]||'📰')}
-          </div>
-          <div>
-            <div class="sc-cat">${a.category}</div>
-            <div class="sc-title ${a.lang==='hi'?'hi':''}">${a.title}</div>
-            <div class="sc-time">${fdate(a.createdAt)}</div>
-          </div>
-        </div>`).join('')}
+      ${f.slice(1,4).map(a=>`<div class="sc" onclick="openArt('${a.id}')">
+        <div class="st">${a.imageUrl?`<img src="${a.imageUrl}" alt=""/>`:(EM[a.category]||'📰')}</div>
+        <div><div class="sc-cat">${a.category}</div><div class="sc-title ${a.lang==='hi'?'hi':''}">${a.title}</div><div class="sc-time">${fdate(a.createdAt)}</div></div>
+      </div>`).join('')}
     </div>`;
 }
 
@@ -519,52 +542,41 @@ function renderCards(f){
   if(!f.length){cg.innerHTML='';return;}
   cg.innerHTML=f.map(a=>`
     <div class="nc" onclick="openArt('${a.id}')">
-      <div class="ci">
-        ${a.imageUrl?`<img src="${a.imageUrl}" alt=""/>`:(EM[a.category]||'📰')}
-      </div>
+      <div class="ci">${a.imageUrl?`<img src="${a.imageUrl}" alt=""/>`:(EM[a.category]||'📰')}</div>
       <div class="cb">
         <div class="cc">${a.category}</div>
         <div class="ct ${a.lang==='hi'?'hi':''}">${a.title}</div>
         <div class="cs">${a.summary}</div>
-        <div class="cm">
-          <span class="by">✍ ${a.author}</span>
-          <span>👁 ${(a.views||0).toLocaleString()}</span>
-        </div>
+        <div class="cm"><span class="by">✍ ${a.author}</span><span>👁 ${(a.views||0).toLocaleString()}</span></div>
       </div>
     </div>`).join('');
 }
 
-// ── ARTICLE VIEW ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// ARTICLE
+// ═══════════════════════════════════════════════════════
 function openArt(id){
-  const a=arts.find(x=>x.id===id); if(!a) return;
-  // increment view count silently
-  try{
-    const {db,doc,updateDoc}=window._fb;
-    updateDoc(doc(db,'articles',id),{views:(a.views||0)+1});
-  }catch(e){}
+  const a=arts.find(x=>x.id===id);if(!a)return;
+  try{const {db,doc,updateDoc}=window._fb;updateDoc(doc(db,'articles',id),{views:(a.views||0)+1});}catch(e){}
   const hi=a.lang==='hi';
-  const bodyHtml=(a.body||'').split('\n\n').map(p=>`<p>${p}</p>`).join('');
+  const body=(a.body||'').split('\n\n').map(p=>`<p>${p}</p>`).join('');
   document.getElementById('artContent').innerHTML=`
     <span class="ctag">${a.category}</span>
     <div class="at ${hi?'hi':''}">${a.title}</div>
     <div class="asum">${a.summary}</div>
     <div class="ambar">
-      <span class="by">✍ ${a.author}</span>
-      <span>${a.authorRole||'Correspondent'}</span>
-      <span>📅 ${fdate(a.createdAt)}</span>
-      <span>👁 ${((a.views||0)+1).toLocaleString()}</span>
-      <span style="margin-left:auto;background:${hi?'#FFF3CD':'#D4EDDA'};color:${hi?'#856404':'#155724'};padding:2px 10px;font-size:11px;font-weight:700;border-radius:2px">
-        ${hi?'हिंदी':'English'}
-      </span>
+      <span class="by">✍ ${a.author}</span><span>${a.authorRole||'Correspondent'}</span>
+      <span>📅 ${fdate(a.createdAt)}</span><span>👁 ${((a.views||0)+1).toLocaleString()}</span>
+      <span style="margin-left:auto;background:${hi?'#FFF3CD':'#D4EDDA'};color:${hi?'#856404':'#155724'};padding:2px 10px;font-size:11px;font-weight:700;border-radius:2px">${hi?'हिंदी':'English'}</span>
     </div>
-    ${a.imageUrl
-      ?`<img src="${a.imageUrl}" class="a-cover" alt="${a.title}"/>`
-      :`<div class="a-cover-ph">${EM[a.category]||'📰'}</div>`}
-    <div class="abody ${hi?'hi':''}">${bodyHtml}</div>`;
+    ${a.imageUrl?`<img src="${a.imageUrl}" class="a-cover" alt=""/>`:`<div class="a-cover-ph">${EM[a.category]||'📰'}</div>`}
+    <div class="abody ${hi?'hi':''}">${body}</div>`;
   showS('articleScreen');
 }
 
-// ── WRITE SCREEN ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// WRITE
+// ═══════════════════════════════════════════════════════
 function goWrite(){
   imgUrl=null;
   if(!CU){
@@ -572,13 +584,11 @@ function goWrite(){
     document.getElementById('writeBox').innerHTML=`
       <div class="fbox" style="text-align:center;padding:40px">
         <div style="font-size:44px;margin-bottom:14px">✍️</div>
-        <h3 style="font-family:var(--ef);font-size:20px;margin-bottom:10px">Login Required / लॉगिन आवश्यक है</h3>
-        <p style="color:var(--ink2);font-size:14px;margin-bottom:22px">
-          You need a writer account to submit articles for review.
-        </p>
+        <h3 style="font-family:var(--ef);font-size:20px;margin-bottom:10px">Login Required</h3>
+        <p style="color:var(--ink2);font-size:14px;margin-bottom:22px">You need an approved writer account to submit articles.</p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button class="btn bp" onclick="showLogin()">Login</button>
-          <button class="btn bo" onclick="showReg()">Register as Writer</button>
+          <button class="btn bo" onclick="showReg()">Request Writer Access</button>
         </div>
       </div>`;
     return;
@@ -602,8 +612,7 @@ function buildForm(pf){
       <div class="fr">
         <label class="fl">Category / श्रेणी *</label>
         <select class="fsel" id="aCat">
-          ${['राजनीति','व्यापार','खेल','मनोरंजन','Technology','Health','Education','General']
-            .map(c=>`<option ${p.category===c?'selected':''}>${c}</option>`).join('')}
+          ${['राजनीति','व्यापार','खेल','मनोरंजन','Technology','Health','Education','General'].map(c=>`<option ${p.category===c?'selected':''}>${c}</option>`).join('')}
         </select>
       </div>
       <div class="fr">
@@ -622,13 +631,9 @@ function buildForm(pf){
     <div class="fr">
       <label class="fl">Cover Image / कवर फोटो</label>
       <div class="upzone" id="upzone">
-        <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp,image/tiff"
-               onchange="onFilePick(this)"/>
+        <input type="file" accept="image/*" onchange="onFilePick(this)"/>
         <div class="up-icon">🖼️</div>
-        <div class="up-text">
-          <span>Click to upload</span> or drag & drop<br/>
-          <small style="color:var(--ink3)">JPG · PNG · WebP · GIF · BMP — max 32 MB · via ImgBB</small>
-        </div>
+        <div class="up-text"><span>Click to upload</span> or drag & drop<br/><small style="color:var(--ink3)">JPG · PNG · WebP · max 32 MB · via ImgBB</small></div>
       </div>
       <div id="prevDiv"></div>
       <div class="upbar" id="upbar"><div class="upbar-fill" id="upfill"></div></div>
@@ -636,9 +641,8 @@ function buildForm(pf){
     </div>
     <div class="fr">
       <label class="fl">Article Body / पूरा लेख *</label>
-      <textarea class="fta tall" id="aBody"
-        placeholder="Write the full article here.&#10;&#10;Use a blank line between paragraphs for proper formatting.">${p.body||''}</textarea>
-      <div class="fhint">💡 Separate paragraphs with a blank line. Write clearly and factually.</div>
+      <textarea class="fta tall" id="aBody" placeholder="Write the full article here.&#10;&#10;Use a blank line between paragraphs.">${p.body||''}</textarea>
+      <div class="fhint">💡 Leave a blank line between paragraphs for correct formatting.</div>
     </div>
     <div class="subrow">
       <button class="btn bo" onclick="showS('homeScreen')">Cancel</button>
@@ -647,98 +651,53 @@ function buildForm(pf){
   </div>`;
 }
 
-// ── IMGBB IMAGE UPLOAD ────────────────────────────────────
-const IMGBB_KEY = '66f8f8bd88655f45d992c15f609e73f3';
-
+// ═══════════════════════════════════════════════════════
+// IMAGE UPLOAD (ImgBB)
+// ═══════════════════════════════════════════════════════
 function initDrop(){
-  const z=document.getElementById('upzone'); if(!z) return;
+  const z=document.getElementById('upzone');if(!z)return;
   z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('drag')});
   z.addEventListener('dragleave',()=>z.classList.remove('drag'));
-  z.addEventListener('drop',e=>{
-    e.preventDefault(); z.classList.remove('drag');
-    const f=e.dataTransfer.files[0]; if(f) doUpload(f);
-  });
+  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)doUpload(f)});
 }
-
-function onFilePick(inp){ if(inp.files[0]) doUpload(inp.files[0]); }
+function onFilePick(inp){if(inp.files[0])doUpload(inp.files[0]);}
 
 async function doUpload(file){
-  if(!file.type.startsWith('image/')){ Terr('Please select an image file'); return; }
-  if(file.size > 32*1024*1024){ Terr('Image too large — max 32 MB'); return; }
-
-  const bar    = document.getElementById('upbar');
-  const fill   = document.getElementById('upfill');
-  const status = document.getElementById('upStatus');
-  const zone   = document.getElementById('upzone');
-
-  if(bar)    bar.style.display = 'block';
-  if(fill)   fill.style.width  = '0%';
-  if(status) status.textContent = 'Uploading to ImgBB…';
-  if(zone)   zone.style.pointerEvents = 'none';
-
-  // Animate progress bar (ImgBB doesn't give progress events, so fake it smoothly)
-  let fakeP = 0;
-  const ticker = setInterval(()=>{
-    fakeP = Math.min(fakeP + Math.random()*12, 85);
-    if(fill) fill.style.width = fakeP + '%';
-  }, 200);
-
+  if(!file.type.startsWith('image/')){Terr('Please select an image file');return;}
+  if(file.size>32*1024*1024){Terr('Image too large — max 32 MB');return;}
+  const bar=document.getElementById('upbar'),fill=document.getElementById('upfill'),
+        status=document.getElementById('upStatus'),zone=document.getElementById('upzone');
+  if(bar)bar.style.display='block';
+  if(status)status.textContent='Uploading…';
+  if(zone)zone.style.pointerEvents='none';
+  let fp=0;
+  const ticker=setInterval(()=>{fp=Math.min(fp+Math.random()*12,85);if(fill)fill.style.width=fp+'%';},200);
   try{
-    // Convert file to base64
-    const b64 = await new Promise((res, rej) => {
-      const reader = new FileReader();
-      reader.onload  = () => res(reader.result.split(',')[1]);
-      reader.onerror = () => rej(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-
-    const form = new FormData();
-    form.append('image', b64);
-    form.append('key',   IMGBB_KEY);
-
-    const resp = await fetch('https://api.imgbb.com/1/upload', {
-      method: 'POST',
-      body:   form
-    });
-    const data = await resp.json();
-
+    const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej(new Error('Read failed'));r.readAsDataURL(file);});
+    const form=new FormData();form.append('image',b64);form.append('key',IMGBB_KEY);
+    const resp=await fetch('https://api.imgbb.com/1/upload',{method:'POST',body:form});
+    const data=await resp.json();
     clearInterval(ticker);
-
-    if(!data.success) throw new Error(data.error?.message || 'ImgBB upload failed');
-
-    const url = data.data.display_url;
-    imgUrl = url;
-
-    if(fill)   fill.style.width = '100%';
-    if(status) status.textContent = '';
-    setTimeout(()=>{ if(bar) bar.style.display='none'; if(fill) fill.style.width='0%'; }, 400);
-    if(zone) zone.style.pointerEvents = 'auto';
-
-    const pd = document.getElementById('prevDiv');
-    if(pd) pd.innerHTML = `
-      <div class="img-prev">
-        <img src="${url}" alt="preview"/>
-        <button class="img-rm" title="Remove image" onclick="clearImg()">×</button>
-      </div>`;
-
-    Tok('✓ Image uploaded successfully!');
-
-  } catch(e){
+    if(!data.success)throw new Error(data.error?.message||'ImgBB upload failed');
+    imgUrl=data.data.display_url;
+    if(fill)fill.style.width='100%';
+    if(status)status.textContent='';
+    setTimeout(()=>{if(bar)bar.style.display='none';},400);
+    if(zone)zone.style.pointerEvents='auto';
+    const pd=document.getElementById('prevDiv');
+    if(pd)pd.innerHTML=`<div class="img-prev"><img src="${imgUrl}" alt="preview"/><button class="img-rm" onclick="clearImg()">×</button></div>`;
+    Tok('✓ Image uploaded!');
+  }catch(e){
     clearInterval(ticker);
-    if(bar)    bar.style.display  = 'none';
-    if(status) status.textContent = '';
-    if(zone)   zone.style.pointerEvents = 'auto';
-    Terr('Upload failed: ' + e.message);
+    if(bar)bar.style.display='none';if(status)status.textContent='';if(zone)zone.style.pointerEvents='auto';
+    Terr('Upload failed: '+e.message);
   }
 }
+function clearImg(){imgUrl=null;const pd=document.getElementById('prevDiv');if(pd)pd.innerHTML='';}
 
-function clearImg(){
-  imgUrl = null;
-  const pd = document.getElementById('prevDiv');
-  if(pd) pd.innerHTML = '';
-}
-
-// ── SUBMIT ARTICLE ────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// SUBMIT ARTICLE
+// ═══════════════════════════════════════════════════════
 async function submitArt(){
   const l=document.querySelector('input[name="al"]:checked')?.value||'hi';
   const cat2=document.getElementById('aCat')?.value;
@@ -746,135 +705,124 @@ async function submitArt(){
   const title=(document.getElementById('aTit')?.value||'').trim();
   const summary=(document.getElementById('aSum')?.value||'').trim();
   const body=(document.getElementById('aBody')?.value||'').trim();
-
-  if(!title||!summary||!body||!auth2){
-    Terr('Please fill all required * fields'); return;
-  }
-
+  if(!title||!summary||!body||!auth2){Terr('Please fill all required * fields');return;}
   const btn=document.getElementById('subBtn');
-  btn.disabled=true; btn.textContent='Submitting…';
-
+  btn.disabled=true;btn.textContent='Submitting…';
   try{
     const {db,collection,addDoc,serverTimestamp}=window._fb;
     const isAdm=CRole==='admin';
     await addDoc(collection(db,'articles'),{
-      lang:l, category:cat2, author:auth2,
-      title, summary, body,
+      lang:l,category:cat2,author:auth2,title,summary,body,
       status:isAdm?'published':'pending',
       authorRole:isAdm?'Editor':'Correspondent',
-      imageUrl:imgUrl||null,
-      views:0,
-      submittedBy:CU.uid,
-      createdAt:serverTimestamp()
+      imageUrl:imgUrl||null,views:0,
+      submittedBy:CU.uid,createdAt:serverTimestamp()
     });
     imgUrl=null;
     Tok(isAdm?'✅ Article published!':'✅ Submitted for review!');
-    setTimeout(()=>{
-      if(isAdm){ showS('adminScreen'); renderAdmin(); }
-      else { showS('writerScreen'); renderMineTable(); }
-    },1300);
-  }catch(e){
-    Terr('Error: '+e.message);
-    btn.disabled=false; btn.textContent='Submit for Review →';
-  }
+    setTimeout(()=>{if(isAdm){showS('adminScreen');renderAdmin();}else{showS('writerScreen');renderMineTable();}},1300);
+  }catch(e){Terr('Error: '+e.message);btn.disabled=false;btn.textContent='Submit for Review →';}
 }
 
-// ── AUTH ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// AUTH BUTTON
+// ═══════════════════════════════════════════════════════
 function handleAuthBtn(){
   if(CU){
-    if(CRole==='admin'){ showS('adminScreen'); renderAdmin(); }
-    else { showS('writerScreen'); renderMineTable(); }
-  } else {
-    showLogin();
-  }
+    if(CRole==='admin'){showS('adminScreen');renderAdmin();}
+    else{showS('writerScreen');renderMineTable();}
+  }else showLogin();
 }
 
+// ═══════════════════════════════════════════════════════
+// LOGIN SCREEN
+// ═══════════════════════════════════════════════════════
 function showLogin(){
   showS('loginScreen');
   document.getElementById('loginContent').innerHTML=`
     <h3 style="font-family:var(--ef);font-size:17px;margin-bottom:18px;text-align:center">Login / लॉगिन</h3>
-    <div class="fr">
-      <label class="fl">Email</label>
-      <input class="fi" id="le" type="email" placeholder="your@email.com"/>
-    </div>
-    <div class="fr">
-      <label class="fl">Password / पासवर्ड</label>
-      <input class="fi" id="lp" type="password" placeholder="••••••••"/>
-    </div>
+    <div class="fr"><label class="fl">Email</label><input class="fi" id="le" type="email" placeholder="your@email.com"/></div>
+    <div class="fr"><label class="fl">Password / पासवर्ड</label><input class="fi" id="lp" type="password" placeholder="••••••••"/></div>
     <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
       <button class="btn bp" style="width:100%" onclick="doLogin()">Login →</button>
-      <button class="btn bo" style="width:100%" onclick="showReg()">New writer? Register here</button>
-      <button class="btn" style="width:100%;background:none;border:none;color:var(--ink3);font-size:13px;cursor:pointer"
-              onclick="showS('homeScreen')">← Back to Home</button>
-    </div>
-    <div style="margin-top:16px;padding:12px;background:var(--paper);border:1px solid var(--border);border-radius:3px;font-size:12px;color:var(--ink2);line-height:1.6">
-      <strong>🔑 Admin Setup:</strong> After registering, go to<br/>
-      <strong>Firestore Console → users collection → your record → set role = "admin"</strong>
+      <button class="btn bo" style="width:100%" onclick="showReg()">New? Request Writer Access</button>
+      <button class="btn" style="width:100%;background:none;border:none;color:var(--ink3);font-size:13px;cursor:pointer" onclick="showS('homeScreen')">← Back to Home</button>
     </div>`;
 }
 
+// ═══════════════════════════════════════════════════════
+// REGISTER — sends request to admin, no auto-login
+// ═══════════════════════════════════════════════════════
 function showReg(){
   document.getElementById('loginContent').innerHTML=`
-    <h3 style="font-family:var(--ef);font-size:17px;margin-bottom:18px;text-align:center">Register as Writer / रजिस्टर करें</h3>
-    <div class="fr">
-      <label class="fl">Full Name / पूरा नाम</label>
-      <input class="fi" id="rn" placeholder="Aapka poora naam"/>
-    </div>
-    <div class="fr">
-      <label class="fl">Email</label>
-      <input class="fi" id="re" type="email" placeholder="your@email.com"/>
-    </div>
-    <div class="fr">
-      <label class="fl">Password (minimum 6 characters)</label>
-      <input class="fi" id="rp" type="password" placeholder="Choose a strong password"/>
-    </div>
+    <h3 style="font-family:var(--ef);font-size:17px;margin-bottom:6px;text-align:center">Request Writer Access</h3>
+    <p style="font-size:13px;color:var(--ink2);text-align:center;margin-bottom:18px">Your request will be reviewed by the editor before you can login.</p>
+    <div class="fr"><label class="fl">Full Name / पूरा नाम *</label><input class="fi" id="rn" placeholder="Aapka poora naam"/></div>
+    <div class="fr"><label class="fl">Email *</label><input class="fi" id="re" type="email" placeholder="your@email.com"/></div>
+    <div class="fr"><label class="fl">Password * (min 6 characters)</label><input class="fi" id="rp" type="password" placeholder="Choose a strong password"/></div>
+    <div class="fr"><label class="fl">About You / अपने बारे में बताएं</label><textarea class="fta" id="rbio" rows="3" placeholder="Brief intro — your experience, beat, languages you write in…"></textarea></div>
     <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px">
-      <button class="btn bp" style="width:100%" onclick="doReg()">Create Account →</button>
-      <button class="btn bo" style="width:100%" onclick="showLogin()">Already registered? Login</button>
+      <button class="btn bp" style="width:100%" onclick="doReg()">Send Request →</button>
+      <button class="btn bo" style="width:100%" onclick="showLogin()">Already approved? Login</button>
     </div>`;
-}
-
-async function doLogin(){
-  const e2=(document.getElementById('le')?.value||'').trim();
-  const p2=document.getElementById('lp')?.value||'';
-  if(!e2||!p2){ Terr('Please enter email and password'); return; }
-  try{
-    Lov(true);
-    await window._fb.signInWithEmailAndPassword(window._fb.auth,e2,p2);
-  }catch(e){
-    Lov(false);
-    const msg=e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'
-      ?'Wrong email or password'
-      :e.code==='auth/user-not-found'
-      ?'No account found with this email'
-      :e.message;
-    Terr('Login failed: '+msg);
-  }
 }
 
 async function doReg(){
   const n=(document.getElementById('rn')?.value||'').trim();
   const e2=(document.getElementById('re')?.value||'').trim();
   const p2=document.getElementById('rp')?.value||'';
-  if(!n||!e2||!p2){ Terr('Please fill all fields'); return; }
-  if(p2.length<6){ Terr('Password must be at least 6 characters'); return; }
+  const bio=(document.getElementById('rbio')?.value||'').trim();
+  if(!n||!e2||!p2){Terr('Please fill all required fields');return;}
+  if(p2.length<6){Terr('Password must be at least 6 characters');return;}
+
+  const regBtn=document.querySelector('#loginContent .bp');
+  if(regBtn){regBtn.disabled=true;regBtn.textContent='Sending…';}
+
   try{
-    Lov(true);
     const {auth,db,collection,addDoc,createUserWithEmailAndPassword,updateProfile}=window._fb;
+
+    // Check if already requested
+    const snap=await window._fb.getDocs(window._fb.collection(db,'writerRequests'));
+    const exists=snap.docs.some(d=>d.data().email===e2);
+    if(exists){Terr('A request with this email already exists.');if(regBtn){regBtn.disabled=false;regBtn.textContent='Send Request →';}return;}
+
+    // Create Firebase Auth account (disabled until approved via Firestore flag)
     const cr=await createUserWithEmailAndPassword(auth,e2,p2);
     await updateProfile(cr.user,{displayName:n});
-    await addDoc(collection(db,'users'),{
-      uid:cr.user.uid, name:n, email:e2,
-      role:'writer',
-      createdAt:new Date().toISOString()
+
+    // Save request to Firestore
+    await addDoc(collection(db,'writerRequests'),{
+      uid:cr.user.uid,name:n,email:e2,bio:bio||'',
+      status:'pending',
+      createdAt:window._fb.serverTimestamp()
     });
-    Tok('Welcome to Khabarmandi, '+n+'! ✓');
+
+    // Sign out immediately — they can't use the app until approved
+    await window._fb.signOut(auth);
+
+    showS('pendingScreen');
+    Tok('✅ Request sent! Awaiting admin approval.');
+
+  }catch(e){
+    const msg=e.code==='auth/email-already-in-use'?'This email is already registered.':e.message;
+    Terr('Error: '+msg);
+    if(regBtn){regBtn.disabled=false;regBtn.textContent='Send Request →';}
+  }
+}
+
+async function doLogin(){
+  const e2=(document.getElementById('le')?.value||'').trim();
+  const p2=document.getElementById('lp')?.value||'';
+  if(!e2||!p2){Terr('Please enter email and password');return;}
+  try{
+    Lov(true);
+    await window._fb.signInWithEmailAndPassword(window._fb.auth,e2,p2);
+    // onAuthStateChanged handles redirect — but we also check approval there
   }catch(e){
     Lov(false);
-    const msg=e.code==='auth/email-already-in-use'
-      ?'This email is already registered — try logging in'
-      :e.message;
-    Terr('Registration failed: '+msg);
+    const msg=e.code==='auth/invalid-credential'||e.code==='auth/wrong-password'?'Wrong email or password'
+      :e.code==='auth/user-not-found'?'No account found with this email':e.message;
+    Terr('Login failed: '+msg);
   }
 }
 
@@ -884,202 +832,378 @@ async function doLogout(){
   showS('homeScreen');
 }
 
-// ── AUTH STATE LISTENER ───────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// ADMIN FIRST-TIME SETUP
+// ═══════════════════════════════════════════════════════
+async function checkAdminExists(){
+  // Check if any admin exists in users collection
+  try{
+    const snap=await window._fb.getDocs(window._fb.collection(window._fb.db,'users'));
+    return snap.docs.some(d=>d.data().role==='admin');
+  }catch(e){return false;}
+}
+
+function showAdminSetup(){
+  showS('setupScreen');
+  document.getElementById('setupContent').innerHTML=`
+    <div class="infobox note" style="margin-bottom:18px">
+      <strong>First time setup!</strong> No admin account exists yet.<br/>
+      Create your admin account to manage Khabarmandi.
+    </div>
+    <div class="fr"><label class="fl">Admin Name</label><input class="fi" id="sn" placeholder="Your name"/></div>
+    <div class="fr"><label class="fl">Admin Email</label><input class="fi" id="se" type="email" placeholder="admin@khabarmandi.in"/></div>
+    <div class="fr"><label class="fl">Password (min 6 chars)</label><input class="fi" id="sp" type="password" placeholder="Strong password"/></div>
+    <div class="fr"><label class="fl">Confirm Password</label><input class="fi" id="sp2" type="password" placeholder="Repeat password"/></div>
+    <button class="btn bp" style="width:100%;margin-top:8px" onclick="createAdmin()">Create Admin Account →</button>`;
+}
+
+async function createAdmin(){
+  const n=(document.getElementById('sn')?.value||'').trim();
+  const e2=(document.getElementById('se')?.value||'').trim();
+  const p2=document.getElementById('sp')?.value||'';
+  const p3=document.getElementById('sp2')?.value||'';
+  if(!n||!e2||!p2){Terr('Fill all fields');return;}
+  if(p2!==p3){Terr('Passwords do not match');return;}
+  if(p2.length<6){Terr('Password min 6 characters');return;}
+  const btn=document.querySelector('#setupContent .bp');
+  btn.disabled=true;btn.textContent='Creating…';
+  try{
+    const {auth,db,collection,addDoc,createUserWithEmailAndPassword,updateProfile,serverTimestamp}=window._fb;
+    const cr=await createUserWithEmailAndPassword(auth,e2,p2);
+    await updateProfile(cr.user,{displayName:n});
+    await addDoc(collection(db,'users'),{uid:cr.user.uid,name:n,email:e2,role:'admin',createdAt:serverTimestamp()});
+    Tok('✅ Admin account created! Welcome, '+n);
+    // onAuthStateChanged will pick up and redirect to admin dashboard
+  }catch(e){
+    const msg=e.code==='auth/email-already-in-use'?'Email already in use':e.message;
+    Terr('Error: '+msg);btn.disabled=false;btn.textContent='Create Admin Account →';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// AUTH STATE LISTENER
+// ═══════════════════════════════════════════════════════
 async function setupAuth(){
-  const {auth,db,collection,getDocs,onAuthStateChanged}=window._fb;
+  const {auth,db,collection,getDocs,onAuthStateChanged,signOut}=window._fb;
   onAuthStateChanged(auth,async user=>{
     Lov(false);
     if(user){
       CU=user;
-      // fetch role from Firestore
+      // Fetch user record
       try{
         const snap=await getDocs(collection(db,'users'));
         const rec=snap.docs.map(d=>d.data()).find(u=>u.uid===user.uid);
-        CRole=rec?.role||'writer';
-      }catch(e){ CRole='writer'; }
+        CRole=rec?.role||null;
+      }catch(e){CRole=null;}
 
-      document.getElementById('authBtn').textContent=user.displayName||'My Portal';
-
-      // if coming from login screen → redirect
-      if(document.getElementById('loginScreen').classList.contains('active')){
-        if(CRole==='admin'){ showS('adminScreen'); renderAdmin(); }
-        else { showS('writerScreen'); renderMineTable(); }
+      // Check if this is an approved writer or admin
+      if(CRole==='admin'){
+        document.getElementById('authBtn').textContent=user.displayName||'Admin';
+        if(document.getElementById('loginScreen').classList.contains('active')||
+           document.getElementById('setupScreen').classList.contains('active')){
+          showS('adminScreen');renderAdmin();subWriterReqs();
+        }
+      } else if(CRole==='writer'){
+        document.getElementById('authBtn').textContent=user.displayName||'My Portal';
+        if(document.getElementById('loginScreen').classList.contains('active')){
+          showS('writerScreen');renderMineTable();
+        }
+      } else {
+        // User exists in Firebase Auth but NOT approved yet
+        // Check if their request is still pending
+        try{
+          const reqSnap=await getDocs(collection(db,'writerRequests'));
+          const req=reqSnap.docs.map(d=>d.data()).find(r=>r.uid===user.uid);
+          if(req&&req.status==='pending'){
+            // still pending — sign them out and show pending screen
+            await signOut(auth);
+            showS('pendingScreen');
+          } else if(req&&req.status==='rejected'){
+            await signOut(auth);
+            Terr('Your registration was not approved by the admin.');
+            showS('homeScreen');
+          } else {
+            // no record — shouldn't happen, just sign out
+            await signOut(auth);
+          }
+        }catch(e){ await signOut(auth); }
+        CU=null;CRole=null;
+        document.getElementById('authBtn').textContent='लॉगिन';
       }
     }else{
-      CU=null; CRole=null;
+      CU=null;CRole=null;
       document.getElementById('authBtn').textContent='लॉगिन';
     }
   });
 }
 
-// ── ADMIN DASHBOARD ───────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// ADMIN DASHBOARD
+// ═══════════════════════════════════════════════════════
 function renderAdmin(){
+  if(CRole==='admin') subWriterReqs();
   const tot=arts.length;
   const pub=arts.filter(a=>a.status==='published').length;
   const pen=arts.filter(a=>a.status==='pending').length;
   const rej=arts.filter(a=>a.status==='rejected').length;
+  const wpen=writerReqs.filter(r=>r.status==='pending').length;
   document.getElementById('srow').innerHTML=`
     <div class="stc"><div class="stn">${tot}</div><div class="stl">Total Articles</div></div>
     <div class="stc"><div class="stn">${pub}</div><div class="stl">Published</div></div>
-    <div class="stc"><div class="stn" style="color:var(--gold)">${pen}</div><div class="stl">Pending Review</div></div>
-    <div class="stc"><div class="stn" style="color:#999">${rej}</div><div class="stl">Rejected</div></div>`;
-  renderATbl(adTab);
+    <div class="stc"><div class="stn" style="color:var(--gold)">${pen}</div><div class="stl">Pending Articles</div></div>
+    <div class="stc"><div class="stn" style="color:#999">${rej}</div><div class="stl">Rejected</div></div>
+    <div class="stc" style="border-color:${wpen>0?'var(--red)':'var(--border)'}">
+      <div class="stn" style="color:${wpen>0?'var(--red)':'#999'}">${wpen}</div>
+      <div class="stl">Writer Requests</div>
+    </div>`;
+  if(adTab==='writers') renderWriterRequests();
+  else renderATbl(adTab);
 }
 
 function atab(t,el){
   adTab=t;
   document.querySelectorAll('#adminScreen .tab').forEach(x=>x.classList.remove('act'));
-  if(el) el.classList.add('act');
-  renderATbl(t);
+  if(el)el.classList.add('act');
+  if(t==='writers') renderWriterRequests();
+  else renderATbl(t);
 }
 
 function renderATbl(f){
   const rows=f==='all'?arts:arts.filter(a=>a.status===f);
-  document.getElementById('atbl').innerHTML=`
+  document.getElementById('adminContent').innerHTML=`<div style="overflow-x:auto"><table class="tbl" id="atbl">
     <thead><tr>
-      <th style="width:60px">Photo</th>
-      <th>Title / शीर्षक</th>
-      <th>Author</th>
-      <th>Category</th>
-      <th>Lang</th>
-      <th>Date</th>
-      <th>Status</th>
-      <th>Actions</th>
+      <th style="width:60px">Photo</th><th>Title</th><th>Author</th>
+      <th>Category</th><th>Lang</th><th>Date</th><th>Status</th><th>Actions</th>
     </tr></thead>
     <tbody>
-      ${rows.length?rows.map(a=>`
-        <tr>
-          <td class="tc">
-            ${a.imageUrl
-              ?`<img src="${a.imageUrl}" alt=""/>`
-              :`<div class="ni">${EM[a.category]||'📰'}</div>`}
-          </td>
-          <td style="max-width:200px;font-weight:600">
-            ${(a.title||'').substring(0,52)}${(a.title||'').length>52?'…':''}
-          </td>
-          <td style="white-space:nowrap">${a.author||''}</td>
-          <td>${a.category||''}</td>
-          <td>
-            <span style="font-size:11px;padding:2px 8px;border-radius:2px;font-weight:700;
-              background:${a.lang==='hi'?'#FFF3CD':'#D4EDDA'};
-              color:${a.lang==='hi'?'#856404':'#155724'}">
-              ${a.lang==='hi'?'HI':'EN'}
-            </span>
-          </td>
-          <td style="white-space:nowrap;font-size:12px">${fdate(a.createdAt)}</td>
-          <td>
-            <span class="sb ${a.status==='published'?'spb':a.status==='rejected'?'srej':'sp'}">
-              ${a.status}
-            </span>
-          </td>
-          <td>
-            <div class="ab">
-              ${a.status==='pending'?`
-                <button class="btn bsm bg" onclick="chStat('${a.id}','published')">✓ Approve</button>
-                <button class="btn bsm bgr" onclick="chStat('${a.id}','rejected')">✗ Reject</button>`:''}
-              ${a.status==='rejected'?`
-                <button class="btn bsm bg" onclick="chStat('${a.id}','published')">↩ Approve</button>`:''}
-              ${a.status==='published'?`
-                <button class="btn bsm bgr" onclick="chStat('${a.id}','pending')">Unpublish</button>`:''}
-              <button class="btn bsm bo" onclick="openArt('${a.id}')">View</button>
-              <button class="btn bsm bd" onclick="delArt('${a.id}')">🗑</button>
-            </div>
-          </td>
-        </tr>`).join('')
-      :`<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--ink3)">No articles here.</td></tr>`}
-    </tbody>`;
+      ${rows.length?rows.map(a=>`<tr>
+        <td class="tc">${a.imageUrl?`<img src="${a.imageUrl}" alt=""/>`:`<div class="ni">${EM[a.category]||'📰'}</div>`}</td>
+        <td style="max-width:200px;font-weight:600">${(a.title||'').substring(0,52)}${(a.title||'').length>52?'…':''}</td>
+        <td style="white-space:nowrap">${a.author||''}</td>
+        <td>${a.category||''}</td>
+        <td><span style="font-size:11px;padding:2px 8px;border-radius:2px;font-weight:700;background:${a.lang==='hi'?'#FFF3CD':'#D4EDDA'};color:${a.lang==='hi'?'#856404':'#155724'}">${a.lang==='hi'?'HI':'EN'}</span></td>
+        <td style="white-space:nowrap;font-size:12px">${fdate(a.createdAt)}</td>
+        <td><span class="sb ${a.status==='published'?'spb':a.status==='rejected'?'srej':'sp'}">${a.status}</span></td>
+        <td><div class="ab">
+          ${a.status==='pending'?`<button class="btn bsm bg" onclick="chStat('${a.id}','published')">✓ Approve</button><button class="btn bsm bgr" onclick="chStat('${a.id}','rejected')">✗ Reject</button>`:''}
+          ${a.status==='rejected'?`<button class="btn bsm bg" onclick="chStat('${a.id}','published')">↩ Approve</button>`:''}
+          ${a.status==='published'?`<button class="btn bsm bgr" onclick="chStat('${a.id}','pending')">Unpublish</button>`:''}
+          <button class="btn bsm bo" onclick="openArt('${a.id}')">View</button>
+          <button class="btn bsm bd" onclick="delArt('${a.id}')">🗑</button>
+        </div></td>
+      </tr>`).join(''):`<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--ink3)">No articles here.</td></tr>`}
+    </tbody>
+  </table></div>`;
 }
 
 async function chStat(id,status){
+  try{const {db,doc,updateDoc}=window._fb;await updateDoc(doc(db,'articles',id),{status});Tok(status==='published'?'✅ Published!':'Done.');}
+  catch(e){Terr('Error: '+e.message);}
+}
+async function delArt(id){
+  if(!confirm('Delete this article permanently?'))return;
+  try{const {db,doc,deleteDoc}=window._fb;await deleteDoc(doc(db,'articles',id));Tok('Deleted.');}
+  catch(e){Terr('Error: '+e.message);}
+}
+
+// ═══════════════════════════════════════════════════════
+// WRITER REQUESTS (admin approves / rejects)
+// ═══════════════════════════════════════════════════════
+function renderWriterRequests(){
+  const pending=writerReqs.filter(r=>r.status==='pending');
+  const approved=writerReqs.filter(r=>r.status==='approved');
+  const rejected=writerReqs.filter(r=>r.status==='rejected');
+
+  document.getElementById('adminContent').innerHTML=`
+    <div style="margin-bottom:22px">
+      <div style="font-family:var(--ef);font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+        ⏳ Pending Requests <span style="font-size:13px;color:var(--ink2);font-weight:400">(${pending.length})</span>
+      </div>
+      ${pending.length?pending.map(r=>writerCard(r)).join(''):`<div class="empty" style="padding:24px"><p>No pending requests.</p></div>`}
+    </div>
+    <div style="margin-bottom:22px">
+      <div style="font-family:var(--ef);font-size:16px;font-weight:700;margin-bottom:14px;color:#155724">
+        ✅ Approved Writers (${approved.length})
+      </div>
+      ${approved.length?approved.map(r=>writerCard(r)).join(''):`<div style="color:var(--ink3);font-size:13px;padding:8px 0">No approved writers yet.</div>`}
+    </div>
+    ${rejected.length?`<div>
+      <div style="font-family:var(--ef);font-size:16px;font-weight:700;margin-bottom:14px;color:#721c24">
+        ❌ Rejected (${rejected.length})
+      </div>
+      ${rejected.map(r=>writerCard(r)).join('')}
+    </div>`:''}`;
+}
+
+function writerCard(r){
+  const isPending=r.status==='pending';
+  const isApproved=r.status==='approved';
+  return `<div class="wcard">
+    <div class="wcard-info">
+      <div class="wcard-name">${r.name} <span style="font-size:11px;padding:2px 8px;border-radius:2px;font-weight:700;margin-left:6px;background:${isApproved?'#D4EDDA':isPending?'#FFF3CD':'#F8D7DA'};color:${isApproved?'#155724':isPending?'#856404':'#721C24'}">${r.status.toUpperCase()}</span></div>
+      <div class="wcard-email">📧 ${r.email}</div>
+      ${r.bio?`<div class="wcard-bio">"${r.bio}"</div>`:''}
+      <div class="wcard-date">Requested: ${fdate(r.createdAt)}</div>
+    </div>
+    <div class="wcard-acts">
+      ${isPending?`
+        <button class="btn bsm bgrn" onclick="approveWriter('${r.id}','${r.uid}','${r.name}','${r.email}')">✓ Approve</button>
+        <button class="btn bsm bd" onclick="rejectWriter('${r.id}')">✗ Reject</button>`:''}
+      ${isApproved?`<button class="btn bsm bgr" onclick="rejectWriter('${r.id}')">Revoke</button>`:''}
+      ${r.status==='rejected'?`<button class="btn bsm bgrn" onclick="approveWriter('${r.id}','${r.uid}','${r.name}','${r.email}')">Re-approve</button>`:''}
+    </div>
+  </div>`;
+}
+
+async function approveWriter(reqId, uid, name, email){
+  try{
+    const {db,doc,updateDoc,collection,addDoc,serverTimestamp,getDocs}=window._fb;
+
+    // Update request status
+    await updateDoc(doc(db,'writerRequests',reqId),{status:'approved'});
+
+    // Check if user already in users collection
+    const snap=await getDocs(collection(db,'users'));
+    const exists=snap.docs.some(d=>d.data().uid===uid);
+    if(!exists){
+      await addDoc(collection(db,'users'),{uid,name,email,role:'writer',createdAt:serverTimestamp()});
+    } else {
+      // update existing record to writer
+      const userDoc=snap.docs.find(d=>d.data().uid===uid);
+      if(userDoc) await updateDoc(doc(db,'users',userDoc.id),{role:'writer'});
+    }
+
+    Tok(`✅ ${name} approved! They can now login.`);
+    renderWriterRequests();
+  }catch(e){Terr('Error: '+e.message);}
+}
+
+async function rejectWriter(reqId){
+  if(!confirm('Reject this writer request?'))return;
   try{
     const {db,doc,updateDoc}=window._fb;
-    await updateDoc(doc(db,'articles',id),{status});
-    Tok(status==='published'?'✅ Article published!':'Done.');
-  }catch(e){ Terr('Error: '+e.message); }
+    await updateDoc(doc(db,'writerRequests',reqId),{status:'rejected'});
+    Tok('Writer request rejected.');
+    renderWriterRequests();
+  }catch(e){Terr('Error: '+e.message);}
 }
 
-async function delArt(id){
-  if(!confirm('Delete this article permanently? / क्या आप इस लेख को हमेशा के लिए हटाना चाहते हैं?')) return;
-  try{
-    const {db,doc,deleteDoc}=window._fb;
-    await deleteDoc(doc(db,'articles',id));
-    Tok('Article deleted.');
-  }catch(e){ Terr('Error: '+e.message); }
-}
-
-// ── WRITER PORTAL ─────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// WRITER PORTAL
+// ═══════════════════════════════════════════════════════
 function renderMineTable(){
-  if(!CU) return;
-  document.getElementById('writerTitle').textContent=
-    'Writer Portal — '+(CU.displayName||CU.email);
+  if(!CU)return;
+  document.getElementById('writerTitle').textContent='Writer Portal — '+(CU.displayName||CU.email);
   const mine=arts.filter(a=>a.submittedBy===CU.uid);
   const tc=document.getElementById('wtabContent');
   if(!mine.length){
-    tc.innerHTML=`<div class="empty">
-      <div class="ic">✍️</div>
-      <p>You haven't submitted any articles yet.</p>
-      <button class="btn bp bsm" style="margin-top:14px"
-              onclick="wtab('write',null)">Write your first article</button>
-    </div>`;
+    tc.innerHTML=`<div class="empty"><div class="ic">✍️</div><p>No articles yet.</p><button class="btn bp bsm" style="margin-top:14px" onclick="wtab('write',null)">Write your first article</button></div>`;
     return;
   }
   tc.innerHTML=`<div style="overflow-x:auto"><table class="tbl">
-    <thead><tr>
-      <th>Photo</th><th>Title</th><th>Category</th>
-      <th>Language</th><th>Date</th><th>Status</th><th>Views</th>
-    </tr></thead>
+    <thead><tr><th>Photo</th><th>Title</th><th>Category</th><th>Language</th><th>Date</th><th>Status</th><th>Views</th></tr></thead>
     <tbody>
-      ${mine.map(a=>`
-        <tr style="cursor:pointer" onclick="openArt('${a.id}')">
-          <td class="tc">
-            ${a.imageUrl
-              ?`<img src="${a.imageUrl}" alt=""/>`
-              :`<div class="ni">${EM[a.category]||'📰'}</div>`}
-          </td>
-          <td style="font-weight:600;max-width:200px">
-            ${(a.title||'').substring(0,50)}${(a.title||'').length>50?'…':''}
-          </td>
-          <td>${a.category}</td>
-          <td>${(a.lang||'').toUpperCase()}</td>
-          <td style="font-size:12px;white-space:nowrap">${fdate(a.createdAt)}</td>
-          <td>
-            <span class="sb ${a.status==='published'?'spb':a.status==='rejected'?'srej':'sp'}">
-              ${a.status}
-            </span>
-          </td>
-          <td>${a.views||0}</td>
-        </tr>`).join('')}
+      ${mine.map(a=>`<tr style="cursor:pointer" onclick="openArt('${a.id}')">
+        <td class="tc">${a.imageUrl?`<img src="${a.imageUrl}" alt=""/>`:`<div class="ni">${EM[a.category]||'📰'}</div>`}</td>
+        <td style="font-weight:600;max-width:200px">${(a.title||'').substring(0,50)}${(a.title||'').length>50?'…':''}</td>
+        <td>${a.category}</td><td>${(a.lang||'').toUpperCase()}</td>
+        <td style="font-size:12px;white-space:nowrap">${fdate(a.createdAt)}</td>
+        <td><span class="sb ${a.status==='published'?'spb':a.status==='rejected'?'srej':'sp'}">${a.status}</span></td>
+        <td>${a.views||0}</td>
+      </tr>`).join('')}
     </tbody>
   </table></div>`;
 }
 
 function wtab(t,el){
   document.querySelectorAll('#writerScreen .tab').forEach(x=>x.classList.remove('act'));
-  if(el) el.classList.add('act');
-  if(t==='write'){
-    imgUrl=null;
-    document.getElementById('wtabContent').innerHTML=buildForm();
-    initDrop();
-  }else{
-    renderMineTable();
-  }
+  if(el)el.classList.add('act');
+  if(t==='write'){imgUrl=null;document.getElementById('wtabContent').innerHTML=buildForm();initDrop();}
+  else renderMineTable();
 }
 
-// ── INIT ──────────────────────────────────────────────────
-function init(){
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+async function init(){
   const now=new Date();
   document.getElementById('mastDate').innerHTML=
     now.toLocaleDateString('hi-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+
-    '<br/>'+
-    now.toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+    '<br/>'+now.toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 }
 
-document.addEventListener('fbReady',()=>{
+document.addEventListener('fbReady',async()=>{
   subArts();
-  setupAuth();
+  await setupAuth();
+  // If no admin exists and no one is logged in, show setup screen
+  setTimeout(async()=>{
+    if(!CU){
+      const hasAdmin=await checkAdminExists();
+      if(!hasAdmin) showAdminSetup();
+    }
+  },2000);
 });
 
 init();
 </script>
+
+<!-- FOOTER -->
+<footer style="background:var(--ink);color:#ccc;padding:40px 0 24px;margin-top:60px">
+  <div style="max-width:1120px;margin:0 auto;padding:0 20px">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:32px;flex-wrap:wrap">
+
+      <!-- Brand -->
+      <div>
+        <div style="font-family:var(--hf);font-size:30px;font-weight:700;color:var(--red);line-height:1;margin-bottom:6px">खबरमंडी</div>
+        <div style="font-family:var(--ef);font-size:10px;letter-spacing:4px;color:#888;margin-bottom:14px">KHABARMANDI</div>
+        <p style="font-size:13px;color:#aaa;line-height:1.7;max-width:300px">
+          A bilingual Hindi-English news portal bringing you accurate, timely reporting from across India and the world.
+        </p>
+        <p style="font-size:13px;color:#aaa;line-height:1.7;margin-top:8px;font-family:var(--hf)">
+          हिंदी और अंग्रेज़ी में ताज़ा, सटीक और विश्वसनीय खबरें।
+        </p>
+      </div>
+
+      <!-- Categories -->
+      <div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:14px">Categories</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          ${['राजनीति','व्यापार','खेल','मनोरंजन','Technology','Health','Education'].map(c=>
+            `<li><button onclick="fcat('${c}',null);showS('homeScreen')" style="background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;font-family:var(--bf);padding:0;text-align:left;transition:color .15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">${c}</button></li>`
+          ).join('')}
+        </ul>
+      </div>
+
+      <!-- Team -->
+      <div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#fff;margin-bottom:14px">Our Team</div>
+        <div style="margin-bottom:14px">
+          <div style="font-size:13px;font-weight:700;color:#fff">Kunwar Sheel Vardhan Pratap Singh</div>
+          <div style="font-size:12px;color:var(--red);font-weight:600;margin-top:2px">Founder &amp; Editor-in-Chief</div>
+        </div>
+        <div style="border-top:1px solid #333;padding-top:14px">
+          <div style="font-size:13px;font-weight:700;color:#fff">Vinay Chaurasiya</div>
+          <div style="font-size:12px;color:#888;font-weight:600;margin-top:2px">Co-Founder &amp; Associate Editor</div>
+        </div>
+        <div style="border-top:1px solid #333;padding-top:14px;margin-top:14px">
+          <button class="btn bp bsm" onclick="goWrite()" style="font-size:12px">✍ Write for Us</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div style="border-top:1px solid #333;padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div style="font-size:12px;color:#666">
+        © ${new Date().getFullYear()} खबरमंडी · Khabarmandi. All rights reserved.
+      </div>
+      <div style="font-size:12px;color:#666;text-align:right">
+        Founded by <span style="color:#aaa;font-weight:600">Kunwar Sheel Vardhan Pratap Singh</span>
+        &nbsp;·&nbsp; in association with <span style="color:#aaa;font-weight:600">Vinay Chaurasiya</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>
