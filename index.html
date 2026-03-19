@@ -99,7 +99,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .h-title{font-family:var(--ef);font-size:24px;font-weight:700;line-height:1.3;color:var(--ink);margin-bottom:8px}
 .h-title.hi{font-family:var(--hf);font-size:21px;line-height:1.55}
 .h-sum{font-size:14px;color:var(--ink2);margin-bottom:12px;line-height:1.6}
-.ameta{font-size:12px;color:var(--ink3);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.ameta{font-size:12px;color:var(--ink2);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.ameta .by{font-weight:700;color:var(--ink2)}
+.ameta .vc{font-weight:700;color:var(--red)}
 .ameta .by{font-weight:700;color:var(--ink2)}
 
 /* SIDEBAR */
@@ -128,8 +130,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .ct{font-family:var(--ef);font-size:15px;font-weight:700;line-height:1.35;color:var(--ink);margin-bottom:7px}
 .ct.hi{font-family:var(--hf);font-size:14px;line-height:1.55}
 .cs{font-size:13px;color:var(--ink2);line-height:1.5;margin-bottom:9px}
-.cm{font-size:11px;color:var(--ink3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
+.cm{font-size:12px;color:var(--ink2);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px}
 .cm .by{font-weight:700;color:var(--ink2)}
+.cm .vc{font-weight:700;color:var(--red)}
 
 /* ARTICLE */
 .aw{max-width:760px;margin:28px auto;padding:0 20px 60px}
@@ -138,8 +141,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .at{font-family:var(--ef);font-size:32px;font-weight:900;line-height:1.2;color:var(--ink);margin-bottom:14px}
 .at.hi{font-family:var(--hf);font-size:26px;line-height:1.55}
 .asum{font-size:17px;color:var(--ink2);line-height:1.6;margin-bottom:16px;border-left:3px solid var(--red);padding-left:16px}
-.ambar{font-size:13px;color:var(--ink3);display:flex;gap:14px;align-items:center;margin-bottom:20px;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0}
-.ambar .by{font-weight:700;color:var(--ink2);font-size:14px}
+.ambar{font-size:13px;color:var(--ink2);display:flex;gap:14px;align-items:center;margin-bottom:20px;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0}
+.ambar .by{font-weight:700;color:var(--ink);font-size:14px}
+.ambar .views-count{font-weight:700;color:var(--red);font-size:14px}
 .a-cover{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;margin-bottom:22px}
 .a-cover-ph{width:100%;aspect-ratio:16/9;background:#e5ddd0;display:flex;align-items:center;justify-content:center;font-size:72px;color:#ccc;margin-bottom:22px}
 .abody{font-size:17px;line-height:1.9;color:var(--ink)}
@@ -283,11 +287,13 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .no-local{text-align:center;padding:40px;color:var(--ink3);font-size:14px}
 
 /* ── HAMBURGER NAV ─────────────────────────────────── */
-.ham{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0}
-.ham span{display:block;height:2px;background:#ccc;border-radius:2px;transition:all .25s}
+.ham{display:none;flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:6px;flex-shrink:0}
+.ham span{display:block;height:2.5px;background:#fff;border-radius:2px;transition:all .25s;width:100%}
+.ham:hover span{background:var(--red)}
 .ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .ham.open span:nth-child(2){opacity:0}
 .ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.ham-label{display:none;color:#ccc;font-size:13px;font-weight:600;font-family:var(--bf);cursor:pointer;letter-spacing:.5px;padding:4px 0}
 .mob-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--ink);z-index:999;overflow-y:auto;padding:70px 0 40px}
 .mob-menu.open{display:block}
 .mob-menu-close{position:fixed;top:14px;right:16px;background:none;border:none;color:#ccc;font-size:26px;cursor:pointer;z-index:1000;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
@@ -305,17 +311,18 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 }
 @media(max-width:768px){
   /* Masthead */
-  .mast-in{flex-wrap:wrap;gap:8px;padding:10px 16px}
-  .mast-date{order:-1;width:100%;font-size:11px}
-  .logo-hi{font-size:26px}
+  .mast-in{flex-wrap:nowrap;gap:8px;padding:10px 16px;align-items:center}
+  .mast-date{display:none}
+  .logo-hi{font-size:22px}
   .logo-en{font-size:9px;letter-spacing:3px}
-  .mast-in > div:nth-child(2){flex:1}
+  .mast-in > div:nth-child(2) > div:last-child{font-size:10px}
 
   /* Nav — hide desktop ul, show hamburger */
-  .nav-in{padding:0 16px}
+  .nav-in{padding:0 16px;min-height:46px}
   .nav ul{display:none}
   .ltog{display:none}
   .ham{display:flex}
+  .ham-label{display:inline-flex}
 
   /* Home grid */
   .hero-grid{grid-template-columns:1fr}
@@ -343,6 +350,9 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 @media(max-width:500px){
   .mast-date{display:none}
   .mob-hide{display:none!important}
+  .logo-hi{font-size:19px}
+  .logo-en{display:none}
+  .mast-in > div:nth-child(2) > div:last-child{display:none}
   .logo-hi{font-size:22px}
   .mast-in > div:nth-child(2) > div:last-child{display:none}/* hide founded-by on tiny screens */
   .cg{grid-template-columns:1fr}
@@ -419,6 +429,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
     <button class="ham" id="hamBtn" onclick="toggleMobMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
+    <span class="ham-label" onclick="toggleMobMenu()">☰ Categories</span>
   </div>
 </nav>
 
@@ -585,6 +596,7 @@ const IMGBB_KEY='66f8f8bd88655f45d992c15f609e73f3';
 let CU=null, CRole=null, arts=[], writerReqs=[];
 let lang='both', cat='all', adTab='pending', imgUrl=null;
 let viewMult=73; // loaded from Firestore settings on init
+let multReady=false; // becomes true after first settings snapshot fires
 
 // ═══════════════════════════════════════════════════════
 // UTIL
@@ -726,7 +738,7 @@ function localCard(a){
       </div>
       <div class="ct ${hi?'hi':''}">${a.title}</div>
       <div class="cs">${a.summary}</div>
-      <div class="cm"><span class="by">✍ ${a.author}</span><span>👁 ${((a.views||0)*viewMult).toLocaleString()}</span></div>
+      <div class="cm"><span class="by">✍ ${a.author}</span><span class="vc">👁 ${((a.views||0)*viewMult).toLocaleString()}</span></div>
     </div>
   </div>`;
 }
@@ -937,15 +949,20 @@ function subArts(){
   const {db,collection,query,orderBy,onSnapshot}=window._fb;
   onSnapshot(query(collection(db,'articles'),orderBy('createdAt','desc')),snap=>{
     arts=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(document.getElementById('homeScreen').classList.contains('active'))renderHome();
-    if(document.getElementById('adminScreen').classList.contains('active'))renderAdmin();
-    if(document.getElementById('writerScreen').classList.contains('active'))renderMineTable();
-    // Handle pending deep link
-    if(window._pendingArtId){
-      openArt(window._pendingArtId);
-      window._pendingArtId=null;
-    }
+    // Only render once multiplier is confirmed (avoids showing wrong count)
+    if(!multReady){ setTimeout(()=>renderAfterArts(),300); return; }
+    renderAfterArts();
   },err=>{ Terr('Firebase error — check Firestore rules'); console.error(err); });
+}
+
+function renderAfterArts(){
+  if(document.getElementById('homeScreen').classList.contains('active'))renderHome();
+  if(document.getElementById('adminScreen').classList.contains('active'))renderAdmin();
+  if(document.getElementById('writerScreen').classList.contains('active'))renderMineTable();
+  if(window._pendingArtId){
+    openArt(window._pendingArtId);
+    window._pendingArtId=null;
+  }
 }
 
 function subWriterReqs(){
@@ -981,7 +998,7 @@ function renderHero(f){
         <span class="ctag">${h.category}</span>
         <div class="h-title ${hi?'hi':''}">${h.title}</div>
         <div class="h-sum">${h.summary}</div>
-        <div class="ameta"><span class="by">✍ ${h.author}</span><span>${fdate(h.createdAt)}</span><span>👁 ${((h.views||0)*viewMult).toLocaleString()}</span></div>
+        <div class="ameta"><span class="by">✍ ${h.author}</span><span>${fdate(h.createdAt)}</span><span class="vc">👁 ${((h.views||0)*viewMult).toLocaleString()}</span></div>
       </div>
     </div>
     <div class="ss">
@@ -1002,7 +1019,7 @@ function renderCards(f){
         <div class="cc">${a.category}</div>
         <div class="ct ${a.lang==='hi'?'hi':''}">${a.title}</div>
         <div class="cs">${a.summary}</div>
-        <div class="cm"><span class="by">✍ ${a.author}</span><span>👁 ${((a.views||0)*viewMult).toLocaleString()}</span></div>
+        <div class="cm"><span class="by">✍ ${a.author}</span><span class="vc">👁 ${((a.views||0)*viewMult).toLocaleString()}</span></div>
       </div>
     </div>`).join('');
 }
@@ -1027,7 +1044,7 @@ function openArt(id){
     <div class="asum">${a.summary}</div>
     <div class="ambar">
       <span class="by">✍ ${a.author}</span><span>${a.authorRole||'Correspondent'}</span>
-      <span>📅 ${fdate(a.createdAt)}</span><span>👁 ${(((a.views||0)+1)*viewMult).toLocaleString()}</span>
+      <span>📅 ${fdate(a.createdAt)}</span><span class="views-count">👁 ${(((a.views||0)+1)*viewMult).toLocaleString()}</span>
       <span style="margin-left:auto;background:${hi?'#FFF3CD':'#D4EDDA'};color:${hi?'#856404':'#155724'};padding:2px 10px;font-size:11px;font-weight:700;border-radius:2px">${hi?'हिंदी':'English'}</span>
     </div>
 
@@ -1570,15 +1587,37 @@ async function init(){
 }
 
 document.addEventListener('fbReady',async()=>{
-  // Load view multiplier from Firestore settings first
-  try{
-    const {db,doc,getDoc}=window._fb;
-    const snap=await getDoc(doc(db,'settings','viewMultiplier'));
-    if(snap.exists()&&snap.data().value>=1){
-      viewMult=snap.data().value;
-    }
-  }catch(e){ /* use default 73 if unavailable */ }
+  const {db,doc,onSnapshot}=window._fb;
 
+  // ── Live multiplier listener ──────────────────────────
+  // Runs immediately with cached value, then updates whenever
+  // admin changes it in analytics.html — re-renders all views
+  onSnapshot(doc(db,'settings','viewMultiplier'), snap=>{
+    if(snap.exists()){
+      const v=snap.data().value;
+      if(v&&v>=1) viewMult=v;
+    }
+    if(!multReady){
+      multReady=true;
+      // Now safe to render — multiplier is confirmed
+      if(arts.length) renderAfterArts();
+    } else {
+      // Multiplier changed live — re-render views
+      if(arts.length) renderHome();
+      const artScreen=document.getElementById('articleScreen');
+      if(artScreen&&artScreen.classList.contains('active')){
+        const hash=window.location.hash;
+        const m=hash.match(/^#article\/(.+)$/);
+        if(m) openArt(decodeURIComponent(m[1]));
+      }
+    }
+  }, ()=>{
+    // Settings doc doesn't exist — use default, unblock rendering
+    multReady=true;
+    if(arts.length) renderAfterArts();
+  });
+
+  // Start article listener after setting up multiplier listener
   subArts();
   await setupAuth();
   setTimeout(async()=>{
