@@ -60,8 +60,8 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 @keyframes tick{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
 
 .mast{background:var(--white);border-bottom:3px solid var(--red);padding:14px 0 10px}
-.mast-in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.logo-hi{font-family:var(--hf);font-size:40px;font-weight:700;color:var(--red);line-height:1.1;word-break:keep-all;white-space:nowrap}
+.mast-in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:10px}
+.logo-hi{font-family:var(--hf);font-size:40px;font-weight:700;color:var(--red);line-height:1.1}
 .logo-en{font-family:var(--ef);font-size:11px;color:var(--ink3);letter-spacing:5px;text-transform:uppercase}
 .mast-date{font-size:12px;color:var(--ink2);line-height:1.5}
 .mast-act{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -311,11 +311,12 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 }
 @media(max-width:768px){
   /* Masthead */
-  .mast-in{flex-wrap:wrap;gap:6px;padding:10px 14px;align-items:center}
-  .mast-in > div:nth-child(2){flex:1;min-width:0;text-align:left}
-  .logo-hi{font-size:20px}
-  .logo-en{font-size:9px;letter-spacing:2px}
+  .mast-in{flex-wrap:nowrap;gap:8px;padding:10px 12px;align-items:center}
+  .mast-in > div:nth-child(2){flex:1;min-width:0;overflow:hidden}
+  .logo-hi{font-size:20px;white-space:normal;word-break:break-word}
+  .logo-en{font-size:8px;letter-spacing:2px}
   .mast-in > div:nth-child(2) > div:last-child{font-size:10px}
+  .mast-in img{height:46px!important;width:46px!important;flex-shrink:0}
 
   /* Nav — hide desktop ul, show hamburger */
   .nav-in{padding:0 16px;min-height:46px}
@@ -350,10 +351,11 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 @media(max-width:500px){
   .mast-date{display:none}
   .mob-hide{display:none!important}
-  .logo-hi{font-size:18px}
+  .logo-hi{font-size:17px}
   .logo-en{display:none}
   .mast-in > div:nth-child(2) > div:last-child{display:none}
   .mast-act{flex-shrink:0}
+  .mast-in img{height:40px!important;width:40px!important}
   .cg{grid-template-columns:1fr}
   .dist-grid{grid-template-columns:1fr}
   .sr{grid-template-columns:1fr 1fr}
