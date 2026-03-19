@@ -8,7 +8,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, query, orderBy, onSnapshot, getDocs }
+  import { getFirestore, collection, query, orderBy, onSnapshot, getDocs, doc, setDoc, getDoc }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -26,7 +26,7 @@
   const db   = getFirestore(app);
   const auth = getAuth(app);
 
-  window._fb = { db, auth, collection, query, orderBy, onSnapshot, getDocs, signInWithEmailAndPassword, onAuthStateChanged, signOut };
+  window._fb = { db, auth, collection, query, orderBy, onSnapshot, getDocs, doc, setDoc, getDoc, signInWithEmailAndPassword, onAuthStateChanged, signOut };
   document.dispatchEvent(new Event('fbReady'));
 </script>
 
@@ -213,6 +213,7 @@ body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:1
           style="width:64px;background:#fff;border:1px solid var(--border);color:var(--text1);font-family:var(--mono);font-size:14px;font-weight:500;padding:3px 7px;text-align:center;outline:none;border-radius:3px"
           oninput="updateMult(this.value)"
           title="Views shown on the public site = real views × this number"/>
+        <span id="multSaveLabel" style="font-size:10px;color:var(--green);font-family:var(--mono);min-width:40px"></span>
         <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">×</span>
       </div>
       <button class="logout-btn" onclick="doLogout()">Sign out</button>
@@ -413,17 +414,36 @@ const dv = (n) => (n||0).toLocaleString('en-IN');
 // dvM = "display views multiplied" — what readers see on the public site
 const dvM = (n) => ((n||0) * viewMult).toLocaleString('en-IN');
 
+let multSaveTimer = null;
 function updateMult(val){
   const n = parseInt(val);
   if(!isNaN(n) && n >= 1){
     viewMult = n;
     const disp = document.getElementById('multDisplay');
+    const inp  = document.getElementById('multInput');
+    const saveLabel = document.getElementById('multSaveLabel');
     if(disp) disp.textContent = n;
+    if(saveLabel) saveLabel.textContent = '...';
+
+    // Re-render analytics panels immediately
     renderStats();
     renderTopTable();
     renderRecentFeed();
     renderAuthorBoard();
     renderAll();
+
+    // Debounce save to Firestore — waits 800ms after last keystroke
+    clearTimeout(multSaveTimer);
+    multSaveTimer = setTimeout(async ()=>{
+      try{
+        const {db, doc, setDoc} = window._fb;
+        await setDoc(doc(db,'settings','viewMultiplier'),{ value: n });
+        if(saveLabel){ saveLabel.textContent = '✓ saved'; setTimeout(()=>{ saveLabel.textContent=''; },2000); }
+      }catch(e){
+        if(saveLabel){ saveLabel.textContent = '✗ error'; setTimeout(()=>{ saveLabel.textContent=''; },3000); }
+        console.error('Failed to save multiplier:', e);
+      }
+    }, 800);
   }
 }
 
@@ -496,8 +516,24 @@ document.addEventListener('fbReady',()=>{
 });
 
 // ── LIVE LISTENER ──────────────────────────────────────
-function startListen(){
-  const {db,collection,query,orderBy,onSnapshot}=window._fb;
+async function startListen(){
+  const {db,collection,query,orderBy,onSnapshot,doc,getDoc}=window._fb;
+
+  // Load saved multiplier from Firestore settings
+  try{
+    const snap = await getDoc(doc(db,'settings','viewMultiplier'));
+    if(snap.exists()){
+      const saved = snap.data().value;
+      if(saved && saved >= 1){
+        viewMult = saved;
+        const inp = document.getElementById('multInput');
+        const disp = document.getElementById('multDisplay');
+        if(inp) inp.value = saved;
+        if(disp) disp.textContent = saved;
+      }
+    }
+  }catch(e){ console.log('Could not load multiplier setting:', e); }
+
   onSnapshot(
     query(collection(db,'articles'),orderBy('createdAt','desc')),
     snap=>{
