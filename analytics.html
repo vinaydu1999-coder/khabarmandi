@@ -207,6 +207,14 @@ body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:1
     </div>
     <div class="topbar-right">
       <span class="refresh-label" id="lastUpdate">–</span>
+      <div style="display:flex;align-items:center;gap:8px;background:#f4f4f6;border:1px solid var(--border);padding:5px 12px;border-radius:4px">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:1px;white-space:nowrap">VIEW MULTIPLIER</span>
+        <input type="number" id="multInput" min="1" max="9999" value="73"
+          style="width:64px;background:#fff;border:1px solid var(--border);color:var(--text1);font-family:var(--mono);font-size:14px;font-weight:500;padding:3px 7px;text-align:center;outline:none;border-radius:3px"
+          oninput="updateMult(this.value)"
+          title="Views shown on the public site = real views × this number"/>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono)">×</span>
+      </div>
       <button class="logout-btn" onclick="doLogout()">Sign out</button>
     </div>
   </div>
@@ -235,6 +243,12 @@ body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:1
         <div class="stat-val" id="sPend">–</div>
         <div class="stat-sub" id="sPendSub">awaiting approval</div>
       </div>
+    </div>
+
+    <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:20px;padding:8px 14px;background:#f8f8fb;border:1px solid var(--border);border-radius:4px;display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+      <span>📊 <strong style="color:var(--text2)">Numbers above</strong> = real Firestore counts</span>
+      <span>👁 <strong style="color:var(--text2)">Public views</strong> = real × <span id="multDisplay">73</span> (what readers see on site)</span>
+      <span style="color:var(--text3)">← Change multiplier top-right</span>
     </div>
 
     <!-- ── TOP ARTICLES + VIEWS CHART ─────────────────── -->
@@ -390,6 +404,28 @@ let sortField = 'views';
 let sortDir = -1;
 let langChartInst = null;
 let timeChartInst = null;
+let viewMult = 73; // multiplier applied on public site — change here or use the input above
+
+// dv = "display views" — shows real Firestore count (not multiplied)
+// The analytics always shows TRUE numbers so you can see real data
+const dv = (n) => (n||0).toLocaleString('en-IN');
+
+// dvM = "display views multiplied" — what readers see on the public site
+const dvM = (n) => ((n||0) * viewMult).toLocaleString('en-IN');
+
+function updateMult(val){
+  const n = parseInt(val);
+  if(!isNaN(n) && n >= 1){
+    viewMult = n;
+    const disp = document.getElementById('multDisplay');
+    if(disp) disp.textContent = n;
+    renderStats();
+    renderTopTable();
+    renderRecentFeed();
+    renderAuthorBoard();
+    renderAll();
+  }
+}
 
 const CAT_COLORS = {
   'राजनीति':'#C0392B','व्यापार':'#b8690a','खेल':'#166534',
@@ -426,11 +462,32 @@ async function doLogout(){
 
 // ── AUTH STATE ─────────────────────────────────────────
 document.addEventListener('fbReady',()=>{
-  window._fb.onAuthStateChanged(window._fb.auth, user=>{
+  window._fb.onAuthStateChanged(window._fb.auth, async user=>{
     if(user){
-      document.getElementById('loginWrap').style.display='none';
-      document.getElementById('dash').style.display='block';
-      startListen();
+      // Check if this user is actually an admin in Firestore
+      try{
+        const {db, collection, getDocs} = window._fb;
+        const snap = await getDocs(collection(db,'users'));
+        const rec = snap.docs.map(d=>d.data()).find(u=>u.uid===user.uid);
+        if(rec && rec.role==='admin'){
+          // ✅ Admin confirmed — show dashboard
+          document.getElementById('loginWrap').style.display='none';
+          document.getElementById('dash').style.display='block';
+          startListen();
+        } else {
+          // ❌ Not an admin (writer or unknown) — sign out and show error
+          await window._fb.signOut(window._fb.auth);
+          document.getElementById('loginWrap').style.display='flex';
+          document.getElementById('dash').style.display='none';
+          document.getElementById('loginErr').textContent='Access denied. This dashboard is for admins only.';
+        }
+      }catch(e){
+        // Firestore read failed — sign out to be safe
+        await window._fb.signOut(window._fb.auth);
+        document.getElementById('loginWrap').style.display='flex';
+        document.getElementById('dash').style.display='none';
+        document.getElementById('loginErr').textContent='Could not verify admin role. Please try again.';
+      }
     }else{
       document.getElementById('loginWrap').style.display='flex';
       document.getElementById('dash').style.display='none';
@@ -470,11 +527,11 @@ function renderStats(){
   const pubViews = pub.reduce((s,a)=>s+(a.views||0),0);
   const avg = pub.length ? Math.round(pubViews/pub.length) : 0;
 
-  document.getElementById('sViews').textContent = totalViews.toLocaleString('en-IN');
-  document.getElementById('sViewsSub').textContent = `${arts.length} total articles`;
+  document.getElementById('sViews').textContent = dv(totalViews);
+  document.getElementById('sViewsSub').textContent = `Public sees: ${dvM(totalViews)}`;
   document.getElementById('sPub').textContent = pub.length;
-  document.getElementById('sPubSub').textContent = `${pubViews.toLocaleString('en-IN')} total views`;
-  document.getElementById('sAvg').textContent = avg.toLocaleString('en-IN');
+  document.getElementById('sPubSub').textContent = `${dv(pubViews)} real views`;
+  document.getElementById('sAvg').textContent = dv(avg);
   document.getElementById('sPend').textContent = pen.length;
   document.getElementById('sPendSub').textContent = pen.length===0 ? 'all clear' : 'need review';
 }
@@ -504,7 +561,7 @@ function renderTopTable(){
         <span class="art-rank">${i+1}</span>
         <span class="art-title" title="${esc(a.title)}">${esc(a.title)}</span>
         <span class="art-cat" style="background:${col}22;color:${col}">${a.category}</span>
-        <span class="art-views">${(a.views||0).toLocaleString('en-IN')}</span>
+        <span class="art-views">${dv(a.views)} <span style="font-size:10px;color:var(--text3)">(${dvM(a.views)})</span></span>
         <span class="art-pct">${pct}%</span>
       </div>`;
     }).join('')}`;
@@ -688,7 +745,10 @@ function renderRecentFeed(){
         <div class="feed-title" title="${esc(a.title)}">${esc(a.title).substring(0,64)}${a.title&&a.title.length>64?'…':''}</div>
         <div class="feed-meta">${a.author} · ${a.category} · ${fdate(a.createdAt)}</div>
       </div>
-      <div class="feed-views">${(a.views||0).toLocaleString('en-IN')}</div>
+      <div class="feed-views" style="text-align:right">
+        <div>${dv(a.views)}</div>
+        <div style="font-size:10px;color:var(--text3)">${dvM(a.views)}</div>
+      </div>
     </div>`).join('');
 }
 
@@ -714,7 +774,7 @@ function renderAuthorBoard(){
           ${esc(name)}
           <span style="color:var(--text3);font-size:11px;margin-left:6px">${d.pub} pub · ${d.articles} total</span>
         </span>
-        <span class="bar-count">${d.views.toLocaleString('en-IN')}</span>
+        <span class="bar-count">${dv(d.views)} <span style="font-size:10px;color:var(--text3)">(${dvM(d.views)})</span></span>
       </div>
       <div class="bar-track">
         <div class="bar-fill" style="width:${Math.round(d.views/maxV*100)}%;background:var(--red)"></div>
@@ -769,7 +829,10 @@ function renderAll(){
     const col=CAT_COLORS[a.category]||'#888';
     const sBadge = a.status==='published'?'pub':a.status==='pending'?'pen':'rej';
     return `<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:10px 18px;font-family:var(--mono);color:var(--red);font-weight:500">${(a.views||0).toLocaleString('en-IN')}</td>
+      <td style="padding:10px 18px;font-family:var(--mono);color:var(--red);font-weight:500">
+        ${dv(a.views)}
+        <div style="font-size:10px;color:var(--text3);font-weight:400">${dvM(a.views)}</div>
+      </td>
       <td style="padding:10px 12px;max-width:300px">
         <div style="font-size:12px;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(a.title)}">${esc(a.title)}</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px">${a.summary?esc(a.summary).substring(0,60)+'…':''}</div>
