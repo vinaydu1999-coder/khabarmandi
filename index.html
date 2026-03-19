@@ -9,7 +9,7 @@
 <script type="module">
   import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
-           query, orderBy, onSnapshot, serverTimestamp, getDocs, where, getDoc }
+           query, orderBy, onSnapshot, serverTimestamp, getDocs, where, getDoc, setDoc }
                               from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
            signOut, onAuthStateChanged, updateProfile }
@@ -32,7 +32,7 @@
   window._fb = {
     db, auth,
     collection, addDoc, doc, updateDoc, deleteDoc,
-    query, orderBy, onSnapshot, serverTimestamp, getDocs, where, getDoc,
+    query, orderBy, onSnapshot, serverTimestamp, getDocs, where, getDoc, setDoc,
     createUserWithEmailAndPassword, signInWithEmailAndPassword,
     signOut, onAuthStateChanged, updateProfile
   };
@@ -282,21 +282,80 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .dist-pill.act{background:var(--gold);color:#fff}
 .no-local{text-align:center;padding:40px;color:var(--ink3);font-size:14px}
 
-@media(max-width:768px){.dist-grid{grid-template-columns:1fr 1fr}}
-@media(max-width:500px){.dist-grid{grid-template-columns:1fr}}
+/* ── HAMBURGER NAV ─────────────────────────────────── */
+.ham{display:none;flex-direction:column;justify-content:center;gap:5px;width:36px;height:36px;background:none;border:none;cursor:pointer;padding:4px;flex-shrink:0}
+.ham span{display:block;height:2px;background:#ccc;border-radius:2px;transition:all .25s}
+.ham.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.ham.open span:nth-child(2){opacity:0}
+.ham.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mob-menu{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--ink);z-index:999;overflow-y:auto;padding:70px 0 40px}
+.mob-menu.open{display:block}
+.mob-menu-close{position:fixed;top:14px;right:16px;background:none;border:none;color:#ccc;font-size:26px;cursor:pointer;z-index:1000;width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+.mob-menu ul{list-style:none;padding:0 0 20px}
+.mob-menu ul li button{display:block;width:100%;padding:15px 24px;color:#ccc;font-size:16px;font-weight:600;background:none;border:none;border-bottom:1px solid #222;cursor:pointer;font-family:var(--bf);text-align:left;transition:background .15s,color .15s}
+.mob-menu ul li button:hover,.mob-menu ul li button.act{background:var(--red);color:#fff}
+.mob-lang{display:flex;gap:10px;padding:16px 24px;border-bottom:1px solid #222}
+.mob-lang button{flex:1;padding:10px;border-radius:3px;font-size:14px;font-weight:700;font-family:var(--bf);cursor:pointer;border:1.5px solid #444;background:none;color:#aaa}
+.mob-lang button.act{background:var(--gold);color:#fff;border-color:var(--gold)}
+.mob-actions{display:flex;flex-direction:column;gap:10px;padding:20px 24px}
+
+/* ── RESPONSIVE BREAKPOINTS ──────────────────────────── */
+@media(max-width:900px){
+  .dist-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  /* Masthead */
+  .mast-in{flex-wrap:wrap;gap:8px;padding:10px 16px}
+  .mast-date{order:-1;width:100%;font-size:11px}
+  .logo-hi{font-size:26px}
+  .logo-en{font-size:9px;letter-spacing:3px}
+  .mast-in > div:nth-child(2){flex:1}
+
+  /* Nav — hide desktop ul, show hamburger */
+  .nav-in{padding:0 16px}
+  .nav ul{display:none}
+  .ltog{display:none}
+  .ham{display:flex}
+
+  /* Home grid */
+  .hero-grid{grid-template-columns:1fr}
   .cg{grid-template-columns:1fr 1fr}
+  .dist-grid{grid-template-columns:1fr 1fr}
+
+  /* Article */
+  .at{font-size:22px}
+  .aw{padding:0 16px 40px}
+
+  /* Admin / writer */
   .sr{grid-template-columns:1fr 1fr}
   .fr2{grid-template-columns:1fr}
-  .logo-hi{font-size:30px}
-  .at{font-size:22px}
+  .aw2{padding:16px 14px 40px}
+
+  /* Share bar */
   .share-bar{gap:6px}
   .share-btn{padding:6px 11px;font-size:12px}
+
+  /* Footer */
+  .footer-grid{grid-template-columns:1fr!important;gap:24px!important}
+  .footer-bottom{flex-direction:column!important;text-align:center!important;gap:6px!important}
+  .footer-bottom > div:last-child{text-align:center!important}
 }
 @media(max-width:500px){
-  .cg{grid-template-columns:1fr}
   .mast-date{display:none}
+  .mob-hide{display:none!important}
+  .logo-hi{font-size:22px}
+  .mast-in > div:nth-child(2) > div:last-child{display:none}/* hide founded-by on tiny screens */
+  .cg{grid-template-columns:1fr}
+  .dist-grid{grid-template-columns:1fr}
   .sr{grid-template-columns:1fr 1fr}
   .share-label{width:100%}
+  .h-title{font-size:18px}
+  .at{font-size:19px}
+  .asum{font-size:15px}
+  .abody{font-size:15px}
+  .stat-row-mobile{grid-template-columns:1fr 1fr!important}
+  .tabs{overflow-x:auto;flex-wrap:nowrap}
+  .tab{white-space:nowrap;font-size:12px;padding:8px 12px}
 }
 </style>
 </head>
@@ -330,7 +389,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
       </div>
     </div>
     <div class="mast-act">
-      <button class="btn bo bsm" onclick="goWrite()">✍ लिखें / Write</button>
+      <button class="btn bo bsm mob-hide" onclick="goWrite()">✍ लिखें / Write</button>
       <button class="btn bp bsm" id="authBtn" onclick="handleAuthBtn()">लॉगिन</button>
     </div>
   </div>
@@ -356,8 +415,38 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
       <button class="lbtn act" id="btnHi" onclick="slang('hi')">हिंदी</button>
       <button class="lbtn" id="btnEn" onclick="slang('en')">English</button>
     </div>
+    <!-- Hamburger (mobile only) -->
+    <button class="ham" id="hamBtn" onclick="toggleMobMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- MOBILE MENU OVERLAY -->
+<div class="mob-menu" id="mobMenu">
+  <button class="mob-menu-close" onclick="toggleMobMenu()">✕</button>
+  <div class="mob-lang">
+    <button id="mobBtnHi" class="act" onclick="slang('hi');closeMobMenu()">हिंदी</button>
+    <button id="mobBtnEn" onclick="slang('en');closeMobMenu()">English</button>
+  </div>
+  <ul>
+    <li><button onclick="fcat('all',this);closeMobMenu()">सभी / All</button></li>
+    <li><button onclick="fcat('राजनीति',this);closeMobMenu()">राजनीति</button></li>
+    <li><button onclick="fcat('व्यापार',this);closeMobMenu()">व्यापार</button></li>
+    <li><button onclick="fcat('खेल',this);closeMobMenu()">खेल</button></li>
+    <li><button onclick="fcat('मनोरंजन',this);closeMobMenu()">मनोरंजन</button></li>
+    <li><button onclick="fcat('Technology',this);closeMobMenu()">Technology</button></li>
+    <li><button onclick="fcat('Health',this);closeMobMenu()">Health</button></li>
+    <li><button onclick="fcat('Education',this);closeMobMenu()">Education</button></li>
+    <li><button onclick="fcat('World News',this);closeMobMenu()">🌍 World News</button></li>
+    <li><button onclick="fcat('Miscellaneous',this);closeMobMenu()">Miscellaneous</button></li>
+    <li><button onclick="fcat('Local News',this);closeMobMenu()">📍 Local News</button></li>
+  </ul>
+  <div class="mob-actions">
+    <button class="btn bo" onclick="goWrite();closeMobMenu()" style="width:100%;justify-content:center">✍ लिखें / Write</button>
+    <button class="btn bp" onclick="handleAuthBtn();closeMobMenu()" style="width:100%;justify-content:center" id="mobAuthBtn">लॉगिन</button>
+  </div>
+</div>
 
 <!-- ═══ HOME ═══ -->
 <div class="screen active" id="homeScreen">
@@ -495,6 +584,7 @@ const IMGBB_KEY='66f8f8bd88655f45d992c15f609e73f3';
 
 let CU=null, CRole=null, arts=[], writerReqs=[];
 let lang='both', cat='all', adTab='pending', imgUrl=null;
+let viewMult=73; // loaded from Firestore settings on init
 
 // ═══════════════════════════════════════════════════════
 // UTIL
@@ -527,6 +617,27 @@ function updateVisitorCounter(){
     <span class="vc-num">${total.toLocaleString('en-IN')}</span>
   </div>`;
 }
+
+// ═══════════════════════════════════════════════════════
+// MOBILE MENU
+// ═══════════════════════════════════════════════════════
+function toggleMobMenu(){
+  const menu=document.getElementById('mobMenu');
+  const btn=document.getElementById('hamBtn');
+  const isOpen=menu.classList.contains('open');
+  menu.classList.toggle('open');
+  btn.classList.toggle('open');
+  document.body.style.overflow=isOpen?'':'hidden';
+}
+function closeMobMenu(){
+  const menu=document.getElementById('mobMenu');
+  const btn=document.getElementById('hamBtn');
+  menu.classList.remove('open');
+  btn.classList.remove('open');
+  document.body.style.overflow='';
+}
+// Close mobile menu on back button / escape
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobMenu();});
 
 // ═══════════════════════════════════════════════════════
 // DISTRICT FIELD TOGGLE (show/hide on form)
@@ -615,7 +726,7 @@ function localCard(a){
       </div>
       <div class="ct ${hi?'hi':''}">${a.title}</div>
       <div class="cs">${a.summary}</div>
-      <div class="cm"><span class="by">✍ ${a.author}</span><span>👁 ${((a.views||0)*73).toLocaleString()}</span></div>
+      <div class="cm"><span class="by">✍ ${a.author}</span><span>👁 ${((a.views||0)*viewMult).toLocaleString()}</span></div>
     </div>
   </div>`;
 }
@@ -802,6 +913,10 @@ function slang(l){
   lang=l;
   document.getElementById('btnHi').className='lbtn'+(l==='hi'?' act':'');
   document.getElementById('btnEn').className='lbtn'+(l==='en'?' act':'');
+  const mhi=document.getElementById('mobBtnHi');
+  const men=document.getElementById('mobBtnEn');
+  if(mhi) mhi.className=l==='hi'?'act':'';
+  if(men) men.className=l==='en'?'act':'';
   renderHome();
 }
 function getFiltered(){
@@ -866,7 +981,7 @@ function renderHero(f){
         <span class="ctag">${h.category}</span>
         <div class="h-title ${hi?'hi':''}">${h.title}</div>
         <div class="h-sum">${h.summary}</div>
-        <div class="ameta"><span class="by">✍ ${h.author}</span><span>${fdate(h.createdAt)}</span><span>👁 ${((h.views||0)*73).toLocaleString()}</span></div>
+        <div class="ameta"><span class="by">✍ ${h.author}</span><span>${fdate(h.createdAt)}</span><span>👁 ${((h.views||0)*viewMult).toLocaleString()}</span></div>
       </div>
     </div>
     <div class="ss">
@@ -887,7 +1002,7 @@ function renderCards(f){
         <div class="cc">${a.category}</div>
         <div class="ct ${a.lang==='hi'?'hi':''}">${a.title}</div>
         <div class="cs">${a.summary}</div>
-        <div class="cm"><span class="by">✍ ${a.author}</span><span>👁 ${((a.views||0)*73).toLocaleString()}</span></div>
+        <div class="cm"><span class="by">✍ ${a.author}</span><span>👁 ${((a.views||0)*viewMult).toLocaleString()}</span></div>
       </div>
     </div>`).join('');
 }
@@ -912,7 +1027,7 @@ function openArt(id){
     <div class="asum">${a.summary}</div>
     <div class="ambar">
       <span class="by">✍ ${a.author}</span><span>${a.authorRole||'Correspondent'}</span>
-      <span>📅 ${fdate(a.createdAt)}</span><span>👁 ${(((a.views||0)+1)*73).toLocaleString()}</span>
+      <span>📅 ${fdate(a.createdAt)}</span><span>👁 ${(((a.views||0)+1)*viewMult).toLocaleString()}</span>
       <span style="margin-left:auto;background:${hi?'#FFF3CD':'#D4EDDA'};color:${hi?'#856404':'#155724'};padding:2px 10px;font-size:11px;font-weight:700;border-radius:2px">${hi?'हिंदी':'English'}</span>
     </div>
 
@@ -1239,13 +1354,13 @@ async function setupAuth(){
         CRole=rec?.role||null;
       }catch(e){CRole=null;}
       if(CRole==='admin'){
-        document.getElementById('authBtn').textContent=user.displayName||'Admin';
+        document.getElementById('authBtn').textContent=user.displayName||'Admin';document.getElementById('mobAuthBtn').textContent=user.displayName||'Admin';
         if(document.getElementById('loginScreen').classList.contains('active')||
            document.getElementById('setupScreen').classList.contains('active')){
           showS('adminScreen');renderAdmin();subWriterReqs();
         }
       } else if(CRole==='writer'){
-        document.getElementById('authBtn').textContent=user.displayName||'My Portal';
+        document.getElementById('authBtn').textContent=user.displayName||'My Portal';document.getElementById('mobAuthBtn').textContent=user.displayName||'My Portal';
         if(document.getElementById('loginScreen').classList.contains('active')){
           showS('writerScreen');renderMineTable();
         }
@@ -1258,11 +1373,11 @@ async function setupAuth(){
           else{await signOut(auth);}
         }catch(e){await signOut(auth);}
         CU=null;CRole=null;
-        document.getElementById('authBtn').textContent='लॉगिन';
+        document.getElementById('authBtn').textContent='लॉगिन';document.getElementById('mobAuthBtn').textContent='लॉगिन';
       }
     }else{
       CU=null;CRole=null;
-      document.getElementById('authBtn').textContent='लॉगिन';
+      document.getElementById('authBtn').textContent='लॉगिन';document.getElementById('mobAuthBtn').textContent='लॉगिन';
     }
   });
 }
@@ -1426,7 +1541,7 @@ function renderMineTable(){
         <td>${a.category}</td><td>${(a.lang||'').toUpperCase()}</td>
         <td style="font-size:12px;white-space:nowrap">${fdate(a.createdAt)}</td>
         <td><span class="sb ${a.status==='published'?'spb':a.status==='rejected'?'srej':'sp'}">${a.status}</span></td>
-        <td>${(a.views||0)*73}</td>
+        <td>${(a.views||0)*viewMult}</td>
       </tr>`).join('')}
     </tbody>
   </table></div>`;
@@ -1455,6 +1570,15 @@ async function init(){
 }
 
 document.addEventListener('fbReady',async()=>{
+  // Load view multiplier from Firestore settings first
+  try{
+    const {db,doc,getDoc}=window._fb;
+    const snap=await getDoc(doc(db,'settings','viewMultiplier'));
+    if(snap.exists()&&snap.data().value>=1){
+      viewMult=snap.data().value;
+    }
+  }catch(e){ /* use default 73 if unavailable */ }
+
   subArts();
   await setupAuth();
   setTimeout(async()=>{
@@ -1471,7 +1595,7 @@ init();
 <!-- FOOTER -->
 <footer style="background:var(--ink);color:#ccc;padding:40px 0 24px;margin-top:60px">
   <div style="max-width:1120px;margin:0 auto;padding:0 20px">
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:32px">
+    <div class="footer-grid" style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:32px;margin-bottom:32px">
       <div>
         <div style="font-family:var(--hf);font-size:30px;font-weight:700;color:var(--red);line-height:1;margin-bottom:6px">सतासीराज ख़बर मंडी</div>
         <div style="font-family:var(--ef);font-size:10px;letter-spacing:4px;color:#888;margin-bottom:14px">SATASHIRAJ KHABAR MANDI</div>
@@ -1508,7 +1632,7 @@ init();
         </div>
       </div>
     </div>
-    <div style="border-top:1px solid #333;padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div class="footer-bottom" style="border-top:1px solid #333;padding-top:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
       <div style="font-size:12px;color:#666" id="footerYear">© 2026 सतासीराज ख़बर मंडी · SatashiRaj Khabar Mandi. All rights reserved.</div>
       <div style="font-size:12px;color:#666;text-align:right">
         Founded by <span style="color:#aaa;font-weight:600">Kunwar Sheel Vardhan Pratap Singh</span>
