@@ -362,7 +362,7 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
   .mast-center{flex:1;min-width:0;overflow:visible}
   .logo-hi{font-size:13px!important;white-space:normal!important;word-break:break-word!important;line-height:1.25!important;display:block!important;color:var(--red)!important}
   .logo-en{display:none!important}
-  .mast-founders{display:none!important}
+  .mast-founders{display:block!important;font-size:9px!important}
   .mast-act{flex-shrink:0!important}
   .cg{grid-template-columns:1fr}
   .dist-grid{grid-template-columns:1fr}
@@ -410,9 +410,6 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
     </div>
   </div>
 </header>
-
-<!-- VISITOR COUNTER BAR -->
-<div style="background:var(--red-bg);border-bottom:1px solid #f5c6c6;padding:5px 20px;text-align:center" id="visitorWrap"></div>
 
 <!-- NAV -->
 <nav class="nav">
@@ -960,7 +957,6 @@ function renderHome(){
   renderHero(f);
   renderCards(f.slice(2));
   renderLocalNews();
-  updateVisitorCounter();
 }
 
 function renderHero(f){
