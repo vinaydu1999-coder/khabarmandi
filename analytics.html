@@ -34,23 +34,23 @@
 *{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:#0a0a0b;
-  --bg2:#111113;
-  --bg3:#18181b;
-  --bg4:#1e1e22;
-  --border:#2a2a2f;
-  --border2:#343439;
-  --red:#e63946;
-  --red-dim:#7a1920;
-  --gold:#f4a72a;
-  --gold-dim:#7a4e0e;
-  --green:#22c55e;
-  --green-dim:#14532d;
-  --blue:#60a5fa;
-  --blue-dim:#1e3a5f;
-  --text1:#f0f0f2;
-  --text2:#9090a0;
-  --text3:#55555f;
+  --bg:#f4f4f6;
+  --bg2:#ffffff;
+  --bg3:#ffffff;
+  --bg4:#f0f0f3;
+  --border:#e2e2e8;
+  --border2:#d0d0d8;
+  --red:#C0392B;
+  --red-dim:#fdecea;
+  --gold:#b8690a;
+  --gold-dim:#fef3e2;
+  --green:#166534;
+  --green-dim:#dcfce7;
+  --blue:#1d4ed8;
+  --blue-dim:#dbeafe;
+  --text1:#111118;
+  --text2:#4a4a5a;
+  --text3:#8888a0;
   --mono:'DM Mono',monospace;
   --head:'Syne',sans-serif;
   --deva:'Noto Serif Devanagari',serif;
@@ -59,21 +59,21 @@
 body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:14px;min-height:100vh;line-height:1.5}
 
 /* ── LOGIN ───────────────────────────────────────────── */
-#loginWrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.login-box{width:100%;max-width:360px;background:var(--bg3);border:1px solid var(--border2);padding:36px 32px}
+#loginWrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(135deg,#fff5f5 0%,#f8f8fc 100%)}
+.login-box{width:100%;max-width:360px;background:#fff;border:1px solid var(--border2);padding:36px 32px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
 .login-logo{font-family:var(--deva);font-size:20px;color:var(--red);margin-bottom:4px;font-weight:700}
 .login-sub{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:28px}
 .login-box label{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
-.login-box input{width:100%;background:var(--bg4);border:1px solid var(--border);color:var(--text1);font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;margin-bottom:14px;border-radius:0}
-.login-box input:focus{border-color:var(--red)}
+.login-box input{width:100%;background:#fafafa;border:1px solid var(--border);color:var(--text1);font-family:var(--mono);font-size:13px;padding:10px 12px;outline:none;margin-bottom:14px;border-radius:0}
+.login-box input:focus{border-color:var(--red);background:#fff}
 .login-btn{width:100%;background:var(--red);color:#fff;border:none;font-family:var(--head);font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:12px;cursor:pointer;margin-top:6px}
-.login-btn:hover{background:#c1121f}
+.login-btn:hover{background:#96281b}
 .login-err{color:var(--red);font-size:12px;margin-top:10px;min-height:16px}
 
 /* ── DASHBOARD ───────────────────────────────────────── */
 #dash{display:none}
 
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:50}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .topbar-left{display:flex;align-items:center;gap:14px}
 .topbar-logo{font-family:var(--deva);font-size:18px;color:var(--red);font-weight:700;line-height:1}
 .topbar-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
@@ -88,7 +88,7 @@ body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:1
 
 /* ── STAT CARDS ──────────────────────────────────────── */
 .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
-.stat{background:var(--bg3);border:1px solid var(--border);padding:20px 22px;position:relative;overflow:hidden}
+.stat{background:#fff;border:1px solid var(--border);padding:20px 22px;position:relative;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
 .stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .stat.red::before{background:var(--red)}
 .stat.gold::before{background:var(--gold)}
@@ -101,7 +101,7 @@ body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:1
 /* ── GRID LAYOUT ─────────────────────────────────────── */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
-.panel{background:var(--bg3);border:1px solid var(--border)}
+.panel{background:#fff;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.04)}
 .panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .panel-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
 .panel-body{padding:16px 18px}
@@ -125,7 +125,7 @@ body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:1
 .bar-meta{display:flex;justify-content:space-between;margin-bottom:5px;font-size:12px}
 .bar-name{color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
 .bar-count{font-family:var(--mono);color:var(--text2)}
-.bar-track{background:var(--bg4);height:5px;border-radius:0}
+.bar-track{background:#ebebf0;height:5px;border-radius:0}
 .bar-fill{height:5px;border-radius:0;transition:width .6s cubic-bezier(.4,0,.2,1)}
 
 /* ── LANG DOUGHNUT ───────────────────────────────────── */
@@ -139,18 +139,18 @@ body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:1
 /* ── MINI FEED ───────────────────────────────────────── */
 .feed-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
 .feed-item:last-child{border-bottom:none}
-.feed-img{width:46px;height:34px;object-fit:cover;flex-shrink:0;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:16px}
+.feed-img{width:46px;height:34px;object-fit:cover;flex-shrink:0;background:#f0f0f4;display:flex;align-items:center;justify-content:center;font-size:16px}
 .feed-img img{width:46px;height:34px;object-fit:cover;display:block}
 .feed-info{}
 .feed-title{font-size:12px;color:var(--text1);line-height:1.4;margin-bottom:3px}
 .feed-meta{font-family:var(--mono);font-size:11px;color:var(--text3)}
-.feed-views{font-family:var(--mono);font-size:12px;color:var(--gold);margin-left:auto;flex-shrink:0;align-self:flex-start;margin-top:2px}
+.feed-views{font-family:var(--mono);font-size:12px;color:var(--red);margin-left:auto;flex-shrink:0;align-self:flex-start;margin-top:2px}
 
 /* ── STATUS BADGE ────────────────────────────────────── */
 .badge{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;font-family:var(--mono)}
-.badge.pub{background:rgba(34,197,94,.15);color:var(--green)}
-.badge.pen{background:rgba(244,167,42,.15);color:var(--gold)}
-.badge.rej{background:rgba(230,57,70,.15);color:var(--red)}
+.badge.pub{background:#dcfce7;color:#166534}
+.badge.pen{background:#fef3c7;color:#92400e}
+.badge.rej{background:#fee2e2;color:#991b1b}
 
 /* ── SPARKLINE ───────────────────────────────────────── */
 .spark{width:80px;height:28px;display:inline-block;vertical-align:middle}
@@ -344,16 +344,16 @@ body{background:var(--bg);color:var(--text1);font-family:var(--head);font-size:1
       <div class="panel-head">
         <span class="panel-title">All articles</span>
         <div style="display:flex;gap:8px;align-items:center">
-          <select id="filterStatus" onchange="renderAll()" style="background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:11px;padding:4px 8px">
+          <select id="filterStatus" onchange="renderAll()" style="background:#fff;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:11px;padding:4px 8px">
             <option value="all">All status</option>
             <option value="published">Published</option>
             <option value="pending">Pending</option>
             <option value="rejected">Rejected</option>
           </select>
-          <select id="filterCat" onchange="renderAll()" style="background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:11px;padding:4px 8px">
+          <select id="filterCat" onchange="renderAll()" style="background:#fff;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:11px;padding:4px 8px">
             <option value="all">All categories</option>
           </select>
-          <select id="filterLang" onchange="renderAll()" style="background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:11px;padding:4px 8px">
+          <select id="filterLang" onchange="renderAll()" style="background:#fff;border:1px solid var(--border);color:var(--text2);font-family:var(--mono);font-size:11px;padding:4px 8px">
             <option value="all">All languages</option>
             <option value="hi">Hindi</option>
             <option value="en">English</option>
@@ -392,9 +392,9 @@ let langChartInst = null;
 let timeChartInst = null;
 
 const CAT_COLORS = {
-  'राजनीति':'#e63946','व्यापार':'#f4a72a','खेल':'#22c55e',
-  'मनोरंजन':'#a78bfa','Technology':'#60a5fa','Health':'#f472b6',
-  'Education':'#34d399','General':'#9090a0'
+  'राजनीति':'#C0392B','व्यापार':'#b8690a','खेल':'#166534',
+  'मनोरंजन':'#6d28d9','Technology':'#1d4ed8','Health':'#be185d',
+  'Education':'#0f766e','World News':'#0369a1','Miscellaneous':'#6b7280','General':'#6b7280'
 };
 
 const EM={'राजनीति':'🏛','व्यापार':'💼','खेल':'⚽','मनोरंजन':'🎬','Technology':'💻','Health':'🏥','Education':'📚','General':'📰'};
@@ -552,8 +552,8 @@ function renderLangChart(){
       labels:['Hindi','English'],
       datasets:[{
         data:[hi,en],
-        backgroundColor:['#e63946','#60a5fa'],
-        borderColor:'#18181b',
+        backgroundColor:['#C0392B','#1d4ed8'],
+        borderColor:'#ffffff',
         borderWidth:3,
         hoverOffset:4
       }]
@@ -569,13 +569,13 @@ function renderLangChart(){
 
   document.getElementById('langList').innerHTML=`
     <div class="lang-row">
-      <div class="lang-dot" style="background:#e63946"></div>
+      <div class="lang-dot" style="background:#C0392B"></div>
       <div class="lang-name">हिंदी Hindi</div>
       <div class="lang-pct">${Math.round(hi/total*100)}%</div>
       <div class="lang-count">${hiV.toLocaleString('en-IN')} views</div>
     </div>
     <div class="lang-row">
-      <div class="lang-dot" style="background:#60a5fa"></div>
+      <div class="lang-dot" style="background:#1d4ed8"></div>
       <div class="lang-name">English</div>
       <div class="lang-pct">${Math.round(en/total*100)}%</div>
       <div class="lang-count">${enV.toLocaleString('en-IN')} views</div>
@@ -585,7 +585,7 @@ function renderLangChart(){
 // ── STATUS BARS ────────────────────────────────────────
 function renderStatusBars(){
   const statuses = ['published','pending','rejected'];
-  const colors   = {'published':'#22c55e','pending':'#f4a72a','rejected':'#e63946'};
+  const colors   = {'published':'#16a34a','pending':'#d97706','rejected':'#C0392B'};
   const counts   = {};
   const views    = {};
   statuses.forEach(s=>{counts[s]=0;views[s]=0;});
@@ -655,8 +655,8 @@ function renderTimeChart(){
       datasets:[{
         label:'Submissions',
         data,
-        backgroundColor:'#e6394644',
-        borderColor:'#e63946',
+        backgroundColor:'#C0392B22',
+        borderColor:'#C0392B',
         borderWidth:1,
         borderRadius:0
       }]
@@ -667,8 +667,8 @@ function renderTimeChart(){
         callbacks:{label:c=>`${c.raw} submission${c.raw!==1?'s':''}`}
       }},
       scales:{
-        x:{ticks:{color:'#55555f',font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:10},grid:{color:'#2a2a2f'}},
-        y:{ticks:{color:'#55555f',font:{size:11},stepSize:1},grid:{color:'#2a2a2f'},beginAtZero:true}
+        x:{ticks:{color:'#8888a0',font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:10},grid:{color:'#e8e8f0'}},
+        y:{ticks:{color:'#8888a0',font:{size:11},stepSize:1},grid:{color:'#e8e8f0'},beginAtZero:true}
       }
     }
   });
@@ -769,7 +769,7 @@ function renderAll(){
     const col=CAT_COLORS[a.category]||'#888';
     const sBadge = a.status==='published'?'pub':a.status==='pending'?'pen':'rej';
     return `<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:10px 18px;font-family:var(--mono);color:var(--gold);font-weight:500">${(a.views||0).toLocaleString('en-IN')}</td>
+      <td style="padding:10px 18px;font-family:var(--mono);color:var(--red);font-weight:500">${(a.views||0).toLocaleString('en-IN')}</td>
       <td style="padding:10px 12px;max-width:300px">
         <div style="font-size:12px;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(a.title)}">${esc(a.title)}</div>
         <div style="font-size:11px;color:var(--text3);margin-top:2px">${a.summary?esc(a.summary).substring(0,60)+'…':''}</div>
