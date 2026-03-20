@@ -1,0 +1,31 @@
+# Cloudflare Pages Headers — SatashiRaj Khabar Mandi
+# Performance, security, and SEO headers
+
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/index.html
+  Cache-Control: public, max-age=300, s-maxage=300
+  X-Robots-Tag: index, follow
+
+/sitemap.xml
+  Content-Type: application/xml; charset=UTF-8
+  Cache-Control: public, max-age=3600, s-maxage=3600
+  X-Robots-Tag: noindex
+
+/robots.txt
+  Content-Type: text/plain; charset=UTF-8
+  Cache-Control: public, max-age=86400
+
+/js/*.js
+  Cache-Control: public, max-age=86400, s-maxage=86400
+
+/logo.jpg
+  Cache-Control: public, max-age=2592000, s-maxage=2592000
+
+/og-default.jpg
+  Cache-Control: public, max-age=2592000, s-maxage=2592000

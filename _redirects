@@ -1,0 +1,21 @@
+# Cloudflare Pages Redirects — SatashiRaj Khabar Mandi
+
+# Category pages → main app (SPA routing)
+/category/:cat      /index.html    200
+/category/:cat/*    /index.html    200
+
+# Article pages → main app (SPA routing)
+/rajniti/*          /index.html    200
+/khel/*             /index.html    200
+/vyapar/*           /index.html    200
+/manoranjan/*       /index.html    200
+/technology/*       /index.html    200
+/health/*           /index.html    200
+/education/*        /index.html    200
+/world-news/*       /index.html    200
+/local-news/*       /index.html    200
+/misc/*             /index.html    200
+/general/*          /index.html    200
+
+# Redirect old hash-style URLs to new format (optional)
+# /article/*          /index.html    200

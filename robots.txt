@@ -1,0 +1,30 @@
+# robots.txt — SatashiRaj Khabar Mandi
+# https://strkhabar.pages.dev/
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://strkhabar.pages.dev/sitemap.xml
+
+# Disallow admin/login pages from indexing
+Disallow: /#admin
+Disallow: /#login
+Disallow: /#setup
+Disallow: /#write
+Disallow: /#writer
+
+# Allow all article pages
+Allow: /#article/
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Google News bot
+User-agent: Googlebot-News
+Allow: /
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
