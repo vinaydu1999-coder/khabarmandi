@@ -199,6 +199,15 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
 .lopt input{accent-color:var(--red)}
 .subrow{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
 
+/* RICH TEXT EDITOR */
+.editor-toolbar{display:flex;align-items:center;gap:4px;padding:6px 10px;background:#f0ece3;border:1px solid var(--border);border-bottom:none;border-radius:3px 3px 0 0;flex-wrap:wrap}
+.etool{background:var(--white);border:1px solid var(--border);border-radius:2px;padding:4px 10px;font-size:14px;cursor:pointer;font-family:var(--bf);color:var(--ink);transition:background .15s;min-width:32px;text-align:center}
+.etool:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.etool-sep{width:1px;height:20px;background:var(--border);margin:0 4px;flex-shrink:0}
+.editor-body{min-height:260px;max-height:600px;overflow-y:auto;padding:16px;border:1px solid var(--border);background:#fff;font-size:16px;line-height:1.9;color:var(--ink);font-family:var(--bf);border-radius:0 0 3px 3px;outline:none;cursor:text}
+.editor-body:focus{border-color:var(--red)}
+.editor-body p{margin-bottom:1em;min-height:1.4em}
+
 /* IMAGE UPLOAD */
 .upzone{border:2px dashed var(--border);background:var(--paper);border-radius:3px;padding:26px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;min-height:110px}
 .upzone:hover,.upzone.drag{border-color:var(--red);background:var(--red-bg)}
@@ -1082,7 +1091,7 @@ function buildForm(pf){
     </div>
     <div class="fr">
       <label class="fl">Headline / शीर्षक *</label>
-      <input class="fi" id="aTit" value="${p.title||''}" placeholder="Write a compelling headline…"/>
+      <input class="fi" id="aTit" value="${p.title||''}" placeholder="Write a compelling headline…" style="font-weight:700;font-size:18px;font-family:var(--hf);color:var(--ink)"/>
     </div>
     <div class="fr">
       <label class="fl">Summary / सारांश * (1–2 sentences)</label>
@@ -1101,8 +1110,18 @@ function buildForm(pf){
     </div>
     <div class="fr">
       <label class="fl">Article Body / पूरा लेख *</label>
-      <textarea class="fta tall" id="aBody" placeholder="Write the full article here.&#10;&#10;Use a blank line between paragraphs.">${p.body||''}</textarea>
-      <div class="fhint">💡 Leave a blank line between paragraphs for correct formatting.</div>
+      <div class="editor-toolbar" id="editorToolbar">
+        <button type="button" class="etool" onclick="edFmt('bold')" title="Bold"><b>B</b></button>
+        <button type="button" class="etool" onclick="edFmt('italic')" title="Italic"><i>I</i></button>
+        <button type="button" class="etool" onclick="edFmt('underline')" title="Underline"><u>U</u></button>
+        <span class="etool-sep"></span>
+        <button type="button" class="etool" onclick="edFmt('insertUnorderedList')" title="Bullet list">☰</button>
+        <button type="button" class="etool" onclick="edFmt('insertOrderedList')" title="Numbered list">№</button>
+        <span class="etool-sep"></span>
+        <button type="button" class="etool" onclick="edFmt('removeFormat')" title="Clear formatting" style="font-size:11px">✕ fmt</button>
+      </div>
+      <div class="editor-body" id="aBody" contenteditable="true" spellcheck="true">${p.body?p.body.split('\\n\\n').map(p2=>`<p>${p2.replace(/\\n/g,'<br>')}</p>`).join(''):'<p><br></p>'}</div>
+      <div class="fhint">💡 Paste your article directly — paragraphs are preserved automatically. Use the toolbar for Bold, Italic, Underline.</div>
     </div>
     <div class="subrow">
       <button class="btn bo" onclick="showS('homeScreen')">Cancel</button>
@@ -1156,6 +1175,38 @@ async function doUpload(file){
 function clearImg(){imgUrl=null;const pd=document.getElementById('prevDiv');if(pd)pd.innerHTML='';}
 
 // ═══════════════════════════════════════════════════════
+// RICH TEXT EDITOR HELPERS
+// ═══════════════════════════════════════════════════════
+function edFmt(cmd){
+  document.getElementById('aBody')?.focus();
+  document.execCommand(cmd,false,null);
+}
+
+function getBodyText(){
+  const el=document.getElementById('aBody');
+  if(!el)return'';
+  // Convert HTML back to plain text with paragraph breaks
+  let html=el.innerHTML;
+  // Replace <br> and </p><p> with newlines
+  html=html.replace(/<br\s*\/?>/gi,'\n');
+  html=html.replace(/<\/p>\s*<p>/gi,'\n\n');
+  html=html.replace(/<p>/gi,'');
+  html=html.replace(/<\/p>/gi,'\n\n');
+  html=html.replace(/<div>/gi,'\n');
+  html=html.replace(/<\/div>/gi,'');
+  // Keep bold/italic/underline markers as plain text (strip tags)
+  html=html.replace(/<b>|<\/b>|<strong>|<\/strong>/gi,'**');
+  html=html.replace(/<i>|<\/i>|<em>|<\/em>/gi,'_');
+  html=html.replace(/<u>|<\/u>/gi,'__');
+  // Strip remaining HTML tags
+  html=html.replace(/<[^>]+>/g,'');
+  // Decode HTML entities
+  const txt=document.createElement('textarea');
+  txt.innerHTML=html;
+  return txt.value.replace(/\n{3,}/g,'\n\n').trim();
+}
+
+// ═══════════════════════════════════════════════════════
 // SUBMIT ARTICLE
 // ═══════════════════════════════════════════════════════
 async function submitArt(){
@@ -1164,7 +1215,7 @@ async function submitArt(){
   const auth2=(document.getElementById('aAuth')?.value||'').trim();
   const title=(document.getElementById('aTit')?.value||'').trim();
   const summary=(document.getElementById('aSum')?.value||'').trim();
-  const body=(document.getElementById('aBody')?.value||'').trim();
+  const body=getBodyText();
   const district=(document.getElementById('aDistrict')?.value||'').trim();
   if(!title||!summary||!body||!auth2){Terr('Please fill all required * fields');return;}
   if(cat2==='Local News'&&!district){Terr('Please enter the district name for Local News');return;}
@@ -1422,6 +1473,7 @@ function renderATbl(f){
           ${a.status==='rejected'?`<button class="btn bsm bg" onclick="chStat('${a.id}','published')">↩ Approve</button>`:''}
           ${a.status==='published'?`<button class="btn bsm bgr" onclick="chStat('${a.id}','pending')">Unpublish</button>`:''}
           <button class="btn bsm bo" onclick="openArt('${a.id}')">View</button>
+          <button class="btn bsm" style="background:#555;color:#fff" onclick="printPreview('${a.id}')">🖨 Print</button>
           <button class="btn bsm" style="background:var(--gold);color:#fff" onclick="editArt('${a.id}')">✏ Edit</button>
           <button class="btn bsm bd" onclick="delArt('${a.id}')">🗑</button>
         </div></td>
@@ -1433,6 +1485,77 @@ function renderATbl(f){
 async function chStat(id,status){
   try{const {db,doc,updateDoc}=window._fb;await updateDoc(doc(db,'articles',id),{status});Tok(status==='published'?'✅ Published!':'Done.');}
   catch(e){Terr('Error: '+e.message);}
+}
+
+function printPreview(id){
+  const a=arts.find(x=>x.id===id);
+  if(!a){Terr('Article not found');return;}
+  const hi=a.lang==='hi';
+  const body=(a.body||'').split('\n\n').map(p=>`<p style="margin:0 0 1.2em 0;line-height:1.9">${p.replace(/\n/g,'<br>')}</p>`).join('');
+  const imgHtml=a.imageUrl?`<img src="${a.imageUrl}" style="width:100%;max-height:400px;object-fit:cover;display:block;margin-bottom:24px;border-radius:4px" alt=""/>` :'';
+
+  const win=window.open('','_blank','width=900,height=700,scrollbars=yes');
+  win.document.write(`<!DOCTYPE html>
+<html lang="${hi?'hi':'en'}">
+<head>
+<meta charset="UTF-8"/>
+<title>Print Preview — ${(a.title||'').substring(0,60)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Source Sans 3',sans-serif;font-size:16px;color:#1a1a1a;background:#fff;padding:0}
+  .page{max-width:720px;margin:0 auto;padding:40px 40px 60px}
+  .site-name{font-family:'Noto Serif Devanagari',serif;font-size:22px;font-weight:700;color:#C0392B;border-bottom:3px solid #C0392B;padding-bottom:10px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+  .site-name small{font-family:'Source Sans 3',sans-serif;font-size:11px;color:#999;letter-spacing:3px;text-transform:uppercase;font-weight:400}
+  .status-badge{display:inline-block;padding:3px 12px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;background:${a.status==='published'?'#D4EDDA':a.status==='rejected'?'#F8D7DA':'#FFF3CD'};color:${a.status==='published'?'#155724':a.status==='rejected'?'#721C24':'#856404'}}
+  .category{display:inline-block;background:#C0392B;color:#fff;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:2px;margin-bottom:12px}
+  h1{font-family:${hi?"'Noto Serif Devanagari',serif":"'Playfair Display',serif"};font-size:${hi?'26px':'30px'};font-weight:${hi?'700':'900'};line-height:1.25;color:#1a1a1a;margin-bottom:14px}
+  .summary{font-size:16px;color:#555;border-left:3px solid #C0392B;padding-left:14px;margin-bottom:18px;line-height:1.6;font-style:italic}
+  .meta{font-size:12px;color:#777;border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:8px 0;margin-bottom:20px;display:flex;gap:16px;flex-wrap:wrap}
+  .meta strong{color:#333}
+  .body-text{font-size:16px;line-height:1.9;color:#1a1a1a;font-family:${hi?"'Noto Serif Devanagari',serif":"'Source Sans 3',sans-serif"}}
+  .print-actions{display:flex;gap:12px;padding:16px 40px;background:#f8f5ee;border-bottom:2px solid #ddd;position:sticky;top:0;z-index:10}
+  .btn-print{padding:10px 28px;background:#C0392B;color:#fff;border:none;border-radius:3px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif}
+  .btn-print:hover{background:#96281B}
+  .btn-close{padding:10px 22px;background:#fff;color:#555;border:1.5px solid #ccc;border-radius:3px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Source Sans 3',sans-serif}
+  .btn-close:hover{background:#f0f0f0}
+  .approve-bar{margin-top:32px;padding:16px;background:#D4EDDA;border:1px solid #28a745;border-radius:3px;font-size:14px;color:#155724;font-weight:600;text-align:center}
+  @media print{
+    .print-actions{display:none!important}
+    .page{padding:20px}
+    body{padding:0}
+  }
+</style>
+</head>
+<body>
+<div class="print-actions">
+  <button class="btn-print" onclick="window.print()">🖨 Print / PDF</button>
+  <button class="btn-close" onclick="window.close()">✕ Close</button>
+  <span style="font-size:13px;color:#777;align-self:center;margin-left:8px">Preview — this will not affect article status</span>
+</div>
+<div class="page">
+  <div class="site-name">
+    सतासीराज ख़बर मंडी
+    <small>SATASHIRAJ KHABAR MANDI</small>
+  </div>
+  <div class="status-badge">Status: ${a.status||'pending'}</div><br/>
+  <div class="category">${a.category||'General'}</div>
+  <h1>${a.title||''}</h1>
+  <div class="summary">${a.summary||''}</div>
+  <div class="meta">
+    <span>✍ <strong>${a.author||''}</strong></span>
+    <span>${a.authorRole||'Correspondent'}</span>
+    <span>📅 <strong>${fdate(a.createdAt)}</strong></span>
+    <span>🌐 <strong>${a.lang==='hi'?'हिंदी':'English'}</strong></span>
+    ${a.district?`<span>📍 <strong>${a.district}</strong></span>`:''}
+  </div>
+  ${imgHtml}
+  <div class="body-text">${body}</div>
+  ${a.status==='pending'?`<div class="approve-bar">⚠ This article is pending approval. Use the admin dashboard to Approve or Reject.</div>`:''}
+</div>
+</body>
+</html>`);
+  win.document.close();
 }
 async function delArt(id){
   if(!confirm('Delete this article permanently?'))return;
