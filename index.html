@@ -633,17 +633,6 @@ function fdate(d){
   return dt.toLocaleDateString('hi-IN',{day:'numeric',month:'long',year:'numeric'});
 }
 
-function updateVisitorCounter(){
-  const total = arts.filter(a=>a.status==='published').reduce((s,a)=>s+(a.views||0),0) * viewMult;
-  const wrap = document.getElementById('visitorWrap');
-  if(!wrap) return;
-  wrap.innerHTML = `<div class="visitor-counter">
-    <span class="vc-dot"></span>
-    <span>👁 Total Views:</span>
-    <span class="vc-num">${total.toLocaleString('en-IN')}</span>
-  </div>`;
-}
-
 // ═══════════════════════════════════════════════════════
 // MOBILE MENU
 // ═══════════════════════════════════════════════════════
