@@ -436,6 +436,27 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
   .tabs{overflow-x:auto;flex-wrap:nowrap}
   .tab{white-space:nowrap;font-size:12px;padding:8px 12px}
 }
+
+/* ── SHORT NEWS STRIP ── */
+.sn-strip{background:var(--ink);padding:18px 0;margin:24px 0 0}
+.sn-head{font-family:var(--ef);font-size:12px;font-weight:700;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sn-head::after{content:'';flex:1;height:1px;background:#2a2a2a}
+.sn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0}
+.sn-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px 9px 0;border-bottom:1px solid #222}
+.sn-item:last-child{border-bottom:none}
+.sn-dot{width:6px;height:6px;min-width:6px;background:var(--red);border-radius:50%;margin-top:8px;flex-shrink:0}
+.sn-cat{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px}
+.sn-btn{font-size:14px;color:#ddd;line-height:1.5;cursor:pointer;font-family:var(--bf);background:none;border:none;padding:0;text-align:left;width:100%}
+.sn-btn.hi{font-family:var(--hf);font-size:13px;line-height:1.75}
+.sn-btn:hover{color:#fff;text-decoration:underline}
+.sn-by{font-size:11px;color:#555;margin-top:3px}
+
+/* ── SHORT NEWS FORM TOGGLE ── */
+.art-type-pick{display:flex;gap:0;border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-bottom:20px}
+.art-type-opt{flex:1;padding:12px 16px;cursor:pointer;border:none;background:var(--paper);font-family:var(--bf);font-size:14px;font-weight:600;color:var(--ink2);transition:all .15s;border-right:1px solid var(--border);text-align:center}
+.art-type-opt:last-child{border-right:none}
+.art-type-opt.sel{background:var(--ink);color:#fff}
+.art-type-opt:hover:not(.sel){background:var(--border)}
 </style>
 </head>
 <body>
@@ -545,6 +566,14 @@ body{background:var(--paper);color:var(--ink);font-family:var(--bf);font-size:16
   <div class="wrap">
     <div class="sh"><h2>Latest News / ताज़ा खबरें</h2><div class="sl"></div></div>
     <div class="cg" id="cgrid" role="list"></div>
+  </div>
+
+  <!-- SHORT NEWS STRIP -->
+  <div class="sn-strip" id="snStrip" style="display:none">
+    <div class="wrap">
+      <div class="sn-head">⚡ Short News / छोटी खबरें</div>
+      <div class="sn-grid" id="snGrid"></div>
+    </div>
   </div>
 
   <!-- LOCAL NEWS SECTION -->
@@ -1531,10 +1560,30 @@ function renderAfterArts(){
 function renderHome(){
   Lov(false); // ensure overlay is always hidden when we render
   const f=getFiltered();
-  renderHero(f);
-  renderCards(f.slice(2));
+  const fullArts = f.filter(a=>!a.isShortNews);
+  const shortArts = f.filter(a=>a.isShortNews);
+  renderHero(fullArts);
+  renderCards(fullArts.slice(2));
+  renderShortNews(shortArts);
   renderLocalNews();
   renderThoughtOfDay();
+}
+
+function renderShortNews(items){
+  const strip=document.getElementById('snStrip');
+  const grid=document.getElementById('snGrid');
+  if(!strip||!grid) return;
+  if(!items||!items.length){ strip.style.display='none'; return; }
+  strip.style.display='block';
+  grid.innerHTML=items.map(a=>`
+    <div class="sn-item">
+      <div class="sn-dot"></div>
+      <div style="flex:1;min-width:0">
+        <div class="sn-cat">${a.category}</div>
+        <button class="sn-btn ${a.lang==='hi'?'hi':''}" onclick="openArt('${a.id}')">${a.title}</button>
+        <div class="sn-by">✍ ${a.author} · ${timeSince(a.createdAt)}</div>
+      </div>
+    </div>`).join('');
 }
 
 function renderHero(f){
@@ -1674,6 +1723,16 @@ function buildForm(pf){
   const p=pf||{};
   const cats=['राजनीति','व्यापार','खेल','मनोरंजन','Technology','Health','Education','World News','Local News','Miscellaneous','General'];
   return `<div class="fbox">
+
+    <!-- ARTICLE TYPE -->
+    <div class="art-type-pick">
+      <button type="button" class="art-type-opt sel" id="typeFull" onclick="pickType('full')">📰 Full Article</button>
+      <button type="button" class="art-type-opt" id="typeShort" onclick="pickType('short')">⚡ Short News / छोटी खबर</button>
+    </div>
+    <div id="shortHint" style="display:none;background:#FFF8E1;border:1px solid #FFD54F;border-radius:3px;padding:10px 14px;margin-bottom:18px;font-size:13px;color:#5D4037">
+      ⚡ <strong>Short News</strong> — No photo needed. Write a quick 2–5 sentence update. It will appear in the <strong>Short News strip</strong> on the homepage.
+    </div>
+
     <div class="fr2">
       <div class="fr">
         <label class="fl">Language / भाषा *</label>
@@ -1710,36 +1769,49 @@ function buildForm(pf){
         <div id="headlineChips" class="kw-chips"></div>
       </div>
     </div>
-    <div class="fr">
-      <label class="fl">Summary / सारांश * <span style="color:var(--ink3);font-size:11px;font-weight:400">(80–160 chars — this becomes meta description)</span></label>
-      <textarea class="fta" id="aSum" rows="3" placeholder="Brief description of the story…" oninput="countChars(this,'sumCount',80,160)">${p.summary||''}</textarea>
-      <div class="char-count" id="sumCount">0 / 160</div>
-    </div>
-    <div class="fr">
-      <label class="fl">Cover Image / कवर फोटो</label>
-      <div class="upzone" id="upzone">
-        <input type="file" accept="image/*" onchange="onFilePick(this)"/>
-        <div class="up-icon">🖼️</div>
-        <div class="up-text"><span>Click to upload</span> or drag & drop<br/><small style="color:var(--ink3)">JPG · PNG · WebP · max 32 MB</small></div>
+
+    <!-- FULL ARTICLE FIELDS -->
+    <div id="fullFields">
+      <div class="fr">
+        <label class="fl">Summary / सारांश * <span style="color:var(--ink3);font-size:11px;font-weight:400">(80–160 chars — this becomes meta description)</span></label>
+        <textarea class="fta" id="aSum" rows="3" placeholder="Brief description of the story…" oninput="countChars(this,'sumCount',80,160)">${p.summary||''}</textarea>
+        <div class="char-count" id="sumCount">0 / 160</div>
       </div>
-      <div id="prevDiv"></div>
-      <div class="upbar" id="upbar"><div class="upbar-fill" id="upfill"></div></div>
-      <div class="up-status" id="upStatus"></div>
-    </div>
-    <div class="fr">
-      <label class="fl">Article Body / पूरा लेख *</label>
-      <div class="editor-toolbar" id="editorToolbar">
-        <button type="button" class="etool" onclick="edFmt('bold')"><b>B</b></button>
-        <button type="button" class="etool" onclick="edFmt('italic')"><i>I</i></button>
-        <button type="button" class="etool" onclick="edFmt('underline')"><u>U</u></button>
-        <span class="etool-sep"></span>
-        <button type="button" class="etool" onclick="edFmt('insertUnorderedList')">☰</button>
-        <button type="button" class="etool" onclick="edFmt('insertOrderedList')">№</button>
-        <span class="etool-sep"></span>
-        <button type="button" class="etool" onclick="edFmt('removeFormat')" style="font-size:11px">✕ fmt</button>
+      <div class="fr">
+        <label class="fl">Cover Image / कवर फोटो</label>
+        <div class="upzone" id="upzone">
+          <input type="file" accept="image/*" onchange="onFilePick(this)"/>
+          <div class="up-icon">🖼️</div>
+          <div class="up-text"><span>Click to upload</span> or drag & drop<br/><small style="color:var(--ink3)">JPG · PNG · WebP · max 32 MB</small></div>
+        </div>
+        <div id="prevDiv"></div>
+        <div class="upbar" id="upbar"><div class="upbar-fill" id="upfill"></div></div>
+        <div class="up-status" id="upStatus"></div>
       </div>
-      <div class="editor-body" id="aBody" contenteditable="true" spellcheck="true" oninput="updateSeoPreview()">${p.body?p.body.split('\\n\\n').map(p2=>`<p>${p2.replace(/\\n/g,'<br>')}</p>`).join(''):'<p><br></p>'}</div>
-      <div class="fhint">💡 Paste your article — paragraphs are preserved. Use toolbar for formatting.</div>
+      <div class="fr">
+        <label class="fl">Article Body / पूरा लेख *</label>
+        <div class="editor-toolbar" id="editorToolbar">
+          <button type="button" class="etool" onclick="edFmt('bold')"><b>B</b></button>
+          <button type="button" class="etool" onclick="edFmt('italic')"><i>I</i></button>
+          <button type="button" class="etool" onclick="edFmt('underline')"><u>U</u></button>
+          <span class="etool-sep"></span>
+          <button type="button" class="etool" onclick="edFmt('insertUnorderedList')">☰</button>
+          <button type="button" class="etool" onclick="edFmt('insertOrderedList')">№</button>
+          <span class="etool-sep"></span>
+          <button type="button" class="etool" onclick="edFmt('removeFormat')" style="font-size:11px">✕ fmt</button>
+        </div>
+        <div class="editor-body" id="aBody" contenteditable="true" spellcheck="true" oninput="updateSeoPreview()">${p.body?p.body.split('\\n\\n').map(p2=>`<p>${p2.replace(/\\n/g,'<br>')}</p>`).join(''):'<p><br></p>'}</div>
+        <div class="fhint">💡 Paste your article — paragraphs are preserved. Use toolbar for formatting.</div>
+      </div>
+    </div>
+
+    <!-- SHORT NEWS FIELD -->
+    <div id="shortFields" style="display:none">
+      <div class="fr">
+        <label class="fl">Short News / छोटी खबर *</label>
+        <textarea class="fta" id="aShortBody" rows="5" placeholder="Write your short update here (2–5 sentences)…&#10;&#10;उदाहरण: आज वाराणसी में भारी बारिश के कारण कई इलाकों में जलभराव हो गया। प्रशासन ने राहत दल तैनात किए हैं।"></textarea>
+        <div class="fhint">⚡ No photo needed. Keep it brief and factual. Summary and body will be the same text.</div>
+      </div>
     </div>
 
     <!-- SEO LIVE PREVIEW (NEW) -->
@@ -1767,6 +1839,16 @@ function buildForm(pf){
       <button class="btn bp" id="subBtn" onclick="submitArt()">Submit for Review →</button>
     </div>
   </div>`;
+}
+
+function pickType(type){
+  const isFull = type==='full';
+  document.getElementById('typeFull').className='art-type-opt'+(isFull?' sel':'');
+  document.getElementById('typeShort').className='art-type-opt'+(isFull?'':' sel');
+  document.getElementById('fullFields').style.display=isFull?'block':'none';
+  document.getElementById('shortFields').style.display=isFull?'none':'block';
+  document.getElementById('shortHint').style.display=isFull?'none':'block';
+  if(isFull) initDrop();
 }
 
 // Live SEO preview
@@ -1906,13 +1988,41 @@ function getBodyText(){
 
 // ── SUBMIT ARTICLE ────────────────────────────────────────
 async function submitArt(){
+  const isShort = document.getElementById('typeShort')?.classList.contains('sel');
   const l     = document.querySelector('input[name="al"]:checked')?.value||'hi';
   const cat2  = document.getElementById('aCat')?.value;
   const auth2 = (document.getElementById('aAuth')?.value||'').trim();
   const title = (document.getElementById('aTit')?.value||'').trim();
+  const dist  = (document.getElementById('aDistrict')?.value||'').trim();
+
+  if(isShort){
+    const shortBody = (document.getElementById('aShortBody')?.value||'').trim();
+    if(!title||!shortBody||!auth2){ Terr('Please fill all required * fields'); return; }
+    const btn=document.getElementById('subBtn');
+    btn.disabled=true; btn.textContent='Submitting…';
+    try{
+      const {db,collection,addDoc,serverTimestamp}=window._fb;
+      const isAdm=CRole==='admin';
+      const slug = window.SEO ? window.SEO.generateSlug(title,l) : title.toLowerCase().replace(/\s+/g,'-').substring(0,80);
+      await addDoc(collection(db,'articles'),{
+        lang:l, category:cat2, author:auth2, title,
+        summary: shortBody, body: shortBody,
+        slug, isShortNews: true,
+        district: cat2==='Local News'?dist:'',
+        status: isAdm?'published':'pending',
+        authorRole: isAdm?'Editor':'Correspondent',
+        imageUrl: null, views: 0,
+        submittedBy: CU.uid,
+        createdAt: serverTimestamp()
+      });
+      Tok(isAdm?'✅ Short news published!':'✅ Submitted for review!');
+      setTimeout(()=>{ if(isAdm){showS('adminScreen');renderAdmin();}else{showS('writerScreen');renderMineTable();} },1300);
+    }catch(e){ Terr('Error: '+e.message); const btn=document.getElementById('subBtn'); btn.disabled=false; btn.textContent='Submit for Review →'; }
+    return;
+  }
+
   const sum   = (document.getElementById('aSum')?.value||'').trim();
   const body  = getBodyText();
-  const dist  = (document.getElementById('aDistrict')?.value||'').trim();
   if(!title||!sum||!body||!auth2){ Terr('Please fill all required * fields'); return; }
   if(cat2==='Local News'&&!dist){ Terr('Please enter the district name for Local News'); return; }
   const btn=document.getElementById('subBtn');
@@ -1923,7 +2033,7 @@ async function submitArt(){
     const slug = window.SEO ? window.SEO.generateSlug(title,l) : title.toLowerCase().replace(/\s+/g,'-').substring(0,80);
     await addDoc(collection(db,'articles'),{
       lang:l, category:cat2, author:auth2, title, summary:sum, body,
-      slug,
+      slug, isShortNews: false,
       district: cat2==='Local News'?dist:'',
       status:   isAdm?'published':'pending',
       authorRole: isAdm?'Editor':'Correspondent',
